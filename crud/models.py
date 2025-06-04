@@ -11,7 +11,7 @@ class Genders(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class Student(models.Model):
+class Students(models.Model):
     class Meta: 
         db_table = "tbl_students"
     first_name = models.CharField(max_length=50)
@@ -28,9 +28,6 @@ class Student(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
-
 class Teacher(models.Model):
     class Meta:
         db_table = "tbl_teachers"
@@ -45,9 +42,6 @@ class Teacher(models.Model):
     password = models.CharField(max_length=255, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
     
 class Profile(models.Model):
     ROLE_CHOICES = (
@@ -74,7 +68,7 @@ class Course(models.Model):
 class Enrollment(models.Model):
     class Meta:
         db_table = "tbl_enrollments"
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    student = models.ForeignKey(Students, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     academic_year = models.CharField(max_length=20)  # e.g., "2023-2024"
     semester = models.CharField(max_length=10)
@@ -88,7 +82,7 @@ class Enrollment(models.Model):
 class Attendance(models.Model):
     class Meta:
         db_table = "tbl_attendance"
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    student = models.ForeignKey(Students, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     date = models.DateField()
     status = models.CharField(
@@ -102,7 +96,7 @@ class Attendance(models.Model):
 class Grade(models.Model):
     class Meta:
         db_table = "tbl_grades"
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    student = models.ForeignKey(Students, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     academic_year = models.CharField(max_length=20)
     semester = models.CharField(max_length=10)
