@@ -1,0 +1,152 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Add Class - ScholarTrack{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Add New Class</h1>
+            <p class="mt-2 text-sm text-gray-600">Create a new class and assign it to your schedule.</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <form method="POST" class="p-8">
+                {% csrf_token %}
+                
+                {% if messages %}
+                <div class="mb-6">
+                    {% for message in messages %}
+                    <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-100{% else %}bg-red-50 text-red-800 border border-red-100{% endif %} flex items-center">
+                        <div class="flex-shrink-0">
+                            {% if message.tags == 'success' %}
+                            <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {% else %}
+                            <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium">{{ message }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="space-y-6">
+                    <!-- Subject Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="subject">
+                            Subject
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select class="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-shadow duration-200" 
+                                    id="subject" 
+                                    name="subject"
+                                    required>
+                                <option value="">Select a subject</option>
+                                {% for subject in subjects %}
+                                <option value="{{ subject.id }}">{{ subject.code }} - {{ subject.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">Choose the subject for this class</p>
+                    </div>
+
+                    <!-- Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="section">
+                            Section
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input class="block w-full px-3 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-shadow duration-200" 
+                                   id="section" 
+                                   name="section" 
+                                   type="text" 
+                                   placeholder="Enter section (e.g. A, B, C)"
+                                   required>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">Specify the section identifier for this class</p>
+                    </div>
+
+                    <!-- Schedule -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="schedule">
+                            Schedule
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input class="block w-full px-3 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-shadow duration-200" 
+                                   id="schedule" 
+                                   name="schedule" 
+                                   type="text" 
+                                   placeholder="Enter schedule (e.g. MWF 9:00-10:30 AM)"
+                                   required>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">Specify the class schedule (days and time)</p>
+                    </div>
+
+                    <!-- Room -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="room">
+                            Room
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input class="block w-full px-3 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-shadow duration-200" 
+                                   id="room" 
+                                   name="room" 
+                                   type="text" 
+                                   placeholder="Enter room number or name"
+                                   required>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">Specify the classroom or location</p>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="mt-8 flex items-center justify-end space-x-4">
+                    <a href="{% url 'teacher_dashboard' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Create Class
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

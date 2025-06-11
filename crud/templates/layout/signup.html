@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - ScholarTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .glass-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            width: 400px;
+            padding: 2rem;
+        }
+        .form-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .form-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+        .submit-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 500;
+            margin-top: 1.5rem;
+        }
+        .submit-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="p-6">
+    <div class="glass-container">
+        <h1 class="text-3xl font-bold text-white text-center mb-6">Create Account</h1>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label for="username" class="block text-white/90 text-sm">Username</label>
+                {{ form.username }}
+            </div>
+
+            <div>
+                <label for="password" class="block text-white/90 text-sm">Password</label>
+                {{ form.password }}
+            </div>
+
+            <div>
+                <label for="confirm_password" class="block text-white/90 text-sm">Confirm Password</label>
+                {{ form.confirm_password }}
+            </div>
+
+            {% if form.errors %}
+            <div class="error-message">
+                <ul class="list-disc pl-5 space-y-1 text-sm">
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="submit-btn">
+                Create Account
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="text-white/80 text-sm">
+                Already have an account?
+                <a href="{% url 'login' %}" class="text-white hover:text-white/90 underline ml-1">
+                    Sign in
+                </a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

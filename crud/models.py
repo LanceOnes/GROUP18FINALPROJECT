@@ -1,110 +1,69 @@
 from django.db import models
 from django.contrib.auth.models import User
-# Create your models here.
+from django.utils import timezone
 
-class Genders(models.Model):
-    class Meta:
-        db_table = 'tbl_genders'
-
-    gender_id = models.BigAutoField(primary_key=True, blank=False) 
-    gender = models.CharField(max_length=56, blank=False)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=[('teacher', 'Teacher'), ('student', 'Student')])
+    gender = models.CharField(max_length=10)
+    contact_number = models.CharField(max_length=15)
+    time_in = models.TimeField()
+    time_out = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class Students(models.Model):
-    class Meta: 
-        db_table = "tbl_students"
-    first_name = models.CharField(max_length=50)
-    middle_name = models.CharField(max_length=50, blank=True)  
-    last_name = models.CharField(max_length=50)
-    gender = models.ForeignKey(Genders, on_delete=models.CASCADE)
-    birth_date = models.DateField(blank=False)
-    address = models.CharField(max_length=255, blank=False)
-    contact_number = models.CharField(max_length=15, unique=True) 
-    email = models.EmailField(unique=True)
-    department = models.CharField(max_length=100)
-    enrollment_year = models.IntegerField()
-    password = models.CharField(max_length=255, blank=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
-
-class Teacher(models.Model):
-    class Meta:
-        db_table = "tbl_teachers"
-    first_name = models.CharField(max_length=50)
-    middle_name = models.CharField(max_length=50, blank=True)
-    last_name = models.CharField(max_length=50)
-    gender = models.ForeignKey(Genders, on_delete=models.CASCADE)
-    address = models.CharField(max_length=255, blank=False)
-    contact_number = models.CharField(max_length=15, unique=True)
-    email = models.EmailField(unique=True)
-    department = models.CharField(max_length=100)
-    password = models.CharField(max_length=255, blank=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
-    
-class Profile(models.Model):
-    ROLE_CHOICES = (
-        ('student', 'Student'),
-        ('teacher', 'Teacher'),
-    )
-
-    user= models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-
     def __str__(self):
-        return f"{self.user.username} - {self.role}"
+        return f"{self.user.get_full_name()} - {self.role}"
 
-class Course(models.Model):
-    class Meta:
-        db_table = "tbl_courses"
+class Subject(models.Model):
+    code = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=100)
-    course_code = models.CharField(max_length=20, unique=True)
-    teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
-
+    description = models.TextField(blank=True, null=True)
+    
     def __str__(self):
-        return self.name
+        return f"{self.code} - {self.name}"
 
-class Enrollment(models.Model):
+class Class(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='classes')
+    teacher = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='teaching_classes')
+    section = models.CharField(max_length=20)
+    schedule = models.CharField(max_length=100)
+    room = models.CharField(max_length=50)
+    
     class Meta:
-        db_table = "tbl_enrollments"
-    student = models.ForeignKey(Students, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    academic_year = models.CharField(max_length=20)  # e.g., "2023-2024"
-    semester = models.CharField(max_length=10)
-
-    class Meta:
-        unique_together = ('student', 'course', 'academic_year', 'semester')
-
+        verbose_name_plural = 'Classes'
+        unique_together = ['subject', 'section']
+    
     def __str__(self):
-        return f"{self.student} in {self.course} ({self.academic_year} {self.semester})"
+        return f"{self.subject.code} {self.section}"
+
+class ClassEnrollment(models.Model):
+    class_instance = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='enrollments')
+    student = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='enrolled_classes')
+    enrollment_date = models.DateField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['class_instance', 'student']
+    
+    def __str__(self):
+        return f"{self.student.user.get_full_name()} - {self.class_instance}"
 
 class Attendance(models.Model):
+    STATUS_CHOICES = [
+        ('present', 'Present'),
+        ('absent', 'Absent'),
+        ('late', 'Late'),
+    ]
+    
+    student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    class_instance = models.ForeignKey(Class, on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)
+    time_in = models.TimeField(default=timezone.now)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='present')
+    
     class Meta:
-        db_table = "tbl_attendance"
-    student = models.ForeignKey(Students, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    date = models.DateField()
-    status = models.CharField(
-        max_length=10,
-        choices=[('Present', 'Present'), ('Absent', 'Absent'), ('Late', 'Late'), ('Excused', 'Excused')]
-    )
-
+        unique_together = ['student', 'class_instance', 'date']
+    
     def __str__(self):
-        return f"{self.date} - {self.student} - {self.status}"
+        return f"{self.student.user.get_full_name()} - {self.class_instance} - {self.date}"
 
-class Grade(models.Model):
-    class Meta:
-        db_table = "tbl_grades"
-    student = models.ForeignKey(Students, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    academic_year = models.CharField(max_length=20)
-    semester = models.CharField(max_length=10)
-    assessment_type = models.CharField(max_length=50)  # e.g., Midterm, Final, Quiz
-    score = models.FloatField()
-
-    class Meta:
-        unique_together = ('student', 'course', 'academic_year', 'semester', 'assessment_type')
-
-    def __str__(self):
-        return f"{self.student} - {self.course} - {self.assessment_type}: {self.score}"

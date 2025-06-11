@@ -1,0 +1,142 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Add Student - ScholarTrack{% endblock %}
+
+{% block content %}
+{% include 'include/toastmessage.html' %}
+<div class="p-6">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-semibold text-gray-800">Add New Student</h1>
+            <p class="mt-1 text-sm text-gray-600">Enter the student's information below.</p>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+            {% csrf_token %}
+            
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-50 text-green-800{% else %}bg-red-50 text-red-800{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Name Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="first_name">
+                        First Name
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" 
+                           id="first_name" 
+                           name="first_name" 
+                           type="text" 
+                           required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="last_name">
+                        Last Name
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" 
+                           id="last_name" 
+                           name="last_name" 
+                           type="text" 
+                           required>
+                </div>
+            </div>
+
+            <!-- Username and Email -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                        Username
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" 
+                           id="username" 
+                           name="username" 
+                           type="text" 
+                           required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                        Email
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" 
+                           id="email" 
+                           name="email" 
+                           type="email" 
+                           required>
+                </div>
+            </div>
+
+            <!-- Gender and Contact -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="gender">
+                        Gender
+                    </label>
+                    <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                            id="gender"
+                            name="gender"
+                            required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="contact_number">
+                        Contact Number
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" 
+                           id="contact_number" 
+                           name="contact_number" 
+                           type="tel" 
+                           required>
+                </div>
+            </div>
+
+            <!-- Time Schedule -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="time_in">
+                        Time In
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" 
+                           id="time_in" 
+                           name="time_in" 
+                           type="time"
+                           required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="time_out">
+                        Time Out
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" 
+                           id="time_out" 
+                           name="time_out" 
+                           type="time"
+                           required>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center justify-end gap-4">
+                <a href="{% url 'student_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Add Student
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
