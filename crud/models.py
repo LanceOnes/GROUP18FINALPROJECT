@@ -7,8 +7,6 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=10, choices=[('teacher', 'Teacher'), ('student', 'Student')])
     gender = models.CharField(max_length=10)
     contact_number = models.CharField(max_length=15)
-    time_in = models.TimeField()
-    time_out = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -59,6 +57,7 @@ class Attendance(models.Model):
     class_instance = models.ForeignKey(Class, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
     time_in = models.TimeField(default=timezone.now)
+    time_out = models.TimeField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='present')
     
     class Meta:

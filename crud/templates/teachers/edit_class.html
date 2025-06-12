@@ -1,0 +1,66 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="glass-container p-6">
+        <h1 class="text-3xl font-bold text-white/90">Edit Class</h1>
+        <p class="mt-2 text-white/70">Update class and subject information</p>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="glass-container p-6">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="subject_code" class="block text-sm font-medium text-white/90 mb-2">Subject Code</label>
+                    <input type="text" id="subject_code" name="subject_code" required
+                        value="{{ class.subject.code }}"
+                        class="glass-input w-full rounded-lg"
+                        placeholder="e.g. CS101">
+                </div>
+                <div>
+                    <label for="subject_name" class="block text-sm font-medium text-white/90 mb-2">Subject Name</label>
+                    <input type="text" id="subject_name" name="subject_name" required
+                        value="{{ class.subject.name }}"
+                        class="glass-input w-full rounded-lg"
+                        placeholder="e.g. Introduction to Computer Science">
+                </div>
+                <div>
+                    <label for="section" class="block text-sm font-medium text-white/90 mb-2">Section</label>
+                    <input type="text" id="section" name="section" required
+                        value="{{ class.section }}"
+                        class="glass-input w-full rounded-lg"
+                        placeholder="e.g. A">
+                </div>
+                <div>
+                    <label for="schedule" class="block text-sm font-medium text-white/90 mb-2">Schedule</label>
+                    <input type="text" id="schedule" name="schedule" required
+                        value="{{ class.schedule }}"
+                        class="glass-input w-full rounded-lg"
+                        placeholder="e.g. MWF 9:00-10:30 AM">
+                </div>
+                <div>
+                    <label for="room" class="block text-sm font-medium text-white/90 mb-2">Room</label>
+                    <input type="text" id="room" name="room" required
+                        value="{{ class.room }}"
+                        class="glass-input w-full rounded-lg"
+                        placeholder="e.g. Room 101">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'add_class' %}"
+                    class="glass-button px-6 py-2.5 rounded-lg font-medium hover:bg-white/10 text-white/90">
+                    Cancel
+                </a>
+                <button type="submit"
+                    class="glass-button px-6 py-2.5 rounded-lg font-medium bg-white/10 hover:bg-white/20 text-white/90">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

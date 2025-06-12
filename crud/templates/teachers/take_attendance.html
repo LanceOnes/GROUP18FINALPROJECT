@@ -1,0 +1,175 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Take Attendance - ScholarTrack{% endblock %}
+
+{% block content %}
+<div class="min-h-screen w-full space-y-4 md:space-y-6">
+    <!-- Header -->
+    <div class="glass-container p-4 md:p-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">Take Attendance</h1>
+        <p class="text-sm md:text-base text-white/70" id="current-date"></p>
+    </div>
+
+    <!-- Class Selection -->
+    <div class="glass-container p-4 md:p-6">
+        <h2 class="text-lg md:text-xl font-semibold text-white mb-3 md:mb-4">Select Class</h2>
+        <select id="class-select" class="glass-select w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a] border border-white/10">
+            <option value="" class="bg-[#2a2a3a]">Select a class...</option>
+            {% for class in classes %}
+                <option value="{{ class.id }}" class="bg-[#2a2a3a]">{{ class.subject.code }} - {{ class.subject.name }} (Section {{ class.section }})</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Attendance Form -->
+    <form method="POST" class="glass-container p-4 md:p-6 space-y-4 md:space-y-6" id="attendance-form" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="class_id" id="class-id-input">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2 md:mb-4">
+            <h2 class="text-lg md:text-xl font-semibold text-white">Mark Attendance</h2>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 w-full sm:w-auto">
+                <div class="w-full sm:w-auto">
+                    <label for="date-input" class="block text-sm font-medium text-white/70 mb-1 sm:hidden">Date</label>
+                    <input type="date" name="date" id="date-input" class="glass-input w-full sm:w-auto p-2 rounded-lg bg-[#2a2a3a] text-white/90 border border-white/10" required>
+                </div>
+                <p class="text-sm md:text-base text-white/70" id="current-time"></p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-white/10">
+                        <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90 border-r border-white/10">Student</th>
+                        <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90 border-r border-white/10">Status</th>
+                        <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90 border-r border-white/10">Time</th>
+                        <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90">Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="student-list" class="divide-y divide-white/10">
+                    <!-- Students will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-end pt-2">
+            <button type="submit" class="glass-button px-4 py-2 md:px-6 md:py-2.5 rounded-lg font-medium hover:bg-white/20 text-white w-full sm:w-auto">
+                Save Attendance
+            </button>
+        </div>
+    </form>
+
+    <!-- No Students Message -->
+    <div id="no-students-message" class="glass-container p-4 md:p-6 text-center" style="display: none;">
+        <div class="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 md:w-8 md:h-8 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg md:text-xl font-semibold text-white mb-2">No Students Found</h3>
+        <p class="text-sm md:text-base text-white/70">There are no students enrolled in this class.</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update current date and time
+    function updateDateTime() {
+        const now = new Date();
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+        
+        document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', dateOptions);
+        document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', timeOptions);
+        
+        // Set the date input's value to today's date in YYYY-MM-DD format
+        const dateInput = document.getElementById('date-input');
+        if (dateInput && !dateInput.value) {
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
+        }
+    }
+
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    // Handle class selection
+    document.getElementById('class-select').addEventListener('change', function() {
+        const classId = this.value;
+        document.getElementById('class-id-input').value = classId;
+        
+        if (classId) {
+            fetch(`/get-students/${classId}/`)
+                .then(response => response.json())
+                .then(students => {
+                    const studentList = document.getElementById('student-list');
+                    studentList.innerHTML = '';
+                    
+                    if (students.length > 0) {
+                        students.forEach(student => {
+                            const row = document.createElement('tr');
+                            row.className = 'hover:bg-white/5';
+                            row.innerHTML = `
+                                <td class="p-3 md:p-4 border-r border-white/10">
+                                    <div class="flex items-center gap-2 md:gap-3">
+                                        <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 flex items-center justify-center">
+                                            <span class="text-xs md:text-sm font-medium text-white">${student.name.charAt(0)}</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm md:text-base font-medium text-white">${student.name}</div>
+                                            <div class="text-xs md:text-sm text-white/60">${student.email}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-3 md:p-4 border-r border-white/10">
+                                    <select name="status_${student.id}" class="glass-select w-full p-2 rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a] border border-white/10" required>
+                                        <option value="present" class="bg-[#2a2a3a]">Present</option>
+                                        <option value="late" class="bg-[#2a2a3a]">Late</option>
+                                        <option value="absent" class="bg-[#2a2a3a]">Absent</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 md:p-4 border-r border-white/10">
+                                    <input type="time" name="time_${student.id}" class="glass-input w-full p-2 rounded-lg bg-[#2a2a3a] text-white/90 border border-white/10" value="${new Date().toTimeString().slice(0,5)}" required>
+                                </td>
+                                <td class="p-3 md:p-4">
+                                    <input type="text" name="notes_${student.id}" class="glass-input w-full p-2 rounded-lg bg-[#2a2a3a] text-white/90 border border-white/10" placeholder="Add notes...">
+                                </td>
+                            `;
+                            studentList.appendChild(row);
+                        });
+                        
+                        document.getElementById('attendance-form').style.display = 'block';
+                        document.getElementById('no-students-message').style.display = 'none';
+                    } else {
+                        document.getElementById('attendance-form').style.display = 'none';
+                        document.getElementById('no-students-message').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('attendance-form').style.display = 'none';
+                    document.getElementById('no-students-message').style.display = 'block';
+                });
+        } else {
+            document.getElementById('attendance-form').style.display = 'none';
+            document.getElementById('no-students-message').style.display = 'none';
+        }
+    });
+
+    // Add form submission handler
+    document.getElementById('attendance-form').addEventListener('submit', function(e) {
+        const dateInput = document.getElementById('date-input');
+        if (!dateInput.value) {
+            e.preventDefault();
+            alert('Please select a date');
+            return false;
+        }
+        return true;
+    });
+</script>
+{% endblock %} 

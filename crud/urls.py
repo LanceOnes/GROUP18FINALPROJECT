@@ -12,9 +12,15 @@ urlpatterns = [
     # Teacher URLs
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('teacher/attendance/', views.manage_attendance, name='manage_attendance'),
+    path('teacher/attendance/take/', views.take_attendance, name='take_attendance'),
+    path('get-students/<int:class_id>/', views.get_students, name='get_students'),
     path('teacher/class/add/', views.add_class, name='add_class'),
+    path('teacher/class/<int:class_id>/', views.teacher_class_detail, name='teacher_class_detail'),
+    path('teacher/class/<int:class_id>/edit/', views.edit_class, name='edit_class'),
+    path('teacher/class/<int:class_id>/delete/', views.delete_class, name='delete_class'),
     path('teacher/studentlist/', views.student_list, name='student_list'),
-    path('teacher/attendance/report/', views.attendance_report, name='attendance_report'),
+    
+    # Student URLs
     path('students/', views.student_list, name='student_list'),
     path('students/add/', views.add_student, name='add_student'),
     path('students/<int:student_id>/edit/', views.edit_student, name='edit_student'),
@@ -24,5 +30,4 @@ urlpatterns = [
     path('attendance/<int:record_id>/edit/', views.edit_attendance, name='edit_attendance'),
     path('attendance/<int:record_id>/delete/', views.delete_attendance, name='delete_attendance'),
     path('attendance/', views.manage_attendance, name='attendance'),
-    path('attendance/report/', views.attendance_report, name='attendance_report'),
 ]

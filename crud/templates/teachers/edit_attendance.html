@@ -1,0 +1,55 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="glass-container p-6">
+        <h1 class="text-3xl font-bold text-white/90">Edit Attendance</h1>
+        <p class="text-white/70">Edit attendance record for {{ attendance.student.user.get_full_name }}</p>
+    </div>
+
+    <!-- Edit Form -->
+    <form method="POST" class="glass-container p-6 space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Status -->
+            <div>
+                <label for="status" class="block text-sm font-medium text-white/90 mb-2">Status</label>
+                <select id="status" name="status" class="glass-select w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a]" required>
+                    <option value="present" {% if attendance.status == 'present' %}selected{% endif %} class="bg-[#2a2a3a]">Present</option>
+                    <option value="late" {% if attendance.status == 'late' %}selected{% endif %} class="bg-[#2a2a3a]">Late</option>
+                    <option value="absent" {% if attendance.status == 'absent' %}selected{% endif %} class="bg-[#2a2a3a]">Absent</option>
+                </select>
+            </div>
+
+            <!-- Time -->
+            <div>
+                <label for="time_in" class="block text-sm font-medium text-white/90 mb-2">Time</label>
+                <input type="time" id="time_in" name="time_in" value="{{ attendance.time_in|time:'H:i' }}"
+                    class="glass-input w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white/90" required>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+            <label for="notes" class="block text-sm font-medium text-white/90 mb-2">Notes</label>
+            <textarea id="notes" name="notes" rows="3"
+                class="glass-input w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white/90"
+                placeholder="Add any notes...">{{ attendance.notes }}</textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end space-x-4">
+            <a href="{% url 'manage_attendance' %}" 
+                class="glass-button px-6 py-2.5 rounded-lg font-medium hover:bg-white/10 text-white/90">
+                Cancel
+            </a>
+            <button type="submit" 
+                class="glass-button px-6 py-2.5 rounded-lg font-medium bg-white/10 hover:bg-white/20 text-white/90">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %} 

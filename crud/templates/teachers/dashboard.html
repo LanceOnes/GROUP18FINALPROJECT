@@ -2,198 +2,208 @@
 {% load static %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="min-h-screen w-full">
     <!-- Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
         <!-- Total Students -->
-        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100">
+        <div class="glass-container p-4 md:p-6 hover:bg-white/5 transition-colors duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Total Students</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ total_students }}</h3>
+                    <p class="text-sm font-medium text-white/80">Total Students</p>
+                    <h3 class="text-2xl md:text-3xl font-bold text-white mt-1">{{ total_students }}</h3>
                 </div>
-                <div class="p-3 bg-blue-50 rounded-lg">
-                    <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-2 md:p-3 bg-blue-500/20 rounded-lg">
+                    <svg class="w-5 h-5 md:w-6 md:h-6 text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                 </div>
             </div>
-            <div class="mt-4">
+            <div class="mt-3 md:mt-4">
                 <div class="flex items-center">
-                    <span class="text-sm text-gray-500">Active this semester</span>
+                    <span class="text-xs md:text-sm text-white/70">Active this semester</span>
                 </div>
             </div>
         </div>
 
         <!-- Total Classes -->
-        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100">
+        <div class="glass-container p-4 md:p-6 hover:bg-white/5 transition-colors duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Total Classes</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ total_classes }}</h3>
+                    <p class="text-sm font-medium text-white/80">Total Classes</p>
+                    <h3 class="text-2xl md:text-3xl font-bold text-white mt-1">{{ total_classes }}</h3>
                 </div>
-                <div class="p-3 bg-green-50 rounded-lg">
-                    <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-2 md:p-3 bg-green-500/20 rounded-lg">
+                    <svg class="w-5 h-5 md:w-6 md:h-6 text-green-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                     </svg>
                 </div>
             </div>
-            <div class="mt-4">
+            <div class="mt-3 md:mt-4">
                 <div class="flex items-center">
-                    <span class="text-sm text-gray-500">Current semester</span>
+                    <span class="text-xs md:text-sm text-white/70">Current semester</span>
                 </div>
             </div>
         </div>
 
         <!-- Present Today -->
-        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100">
+        <div class="glass-container p-4 md:p-6 hover:bg-white/5 transition-colors duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Present Today</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ present_today }}</h3>
+                    <p class="text-sm font-medium text-white/80">Present Today</p>
+                    <h3 class="text-2xl md:text-3xl font-bold text-white mt-1">{{ present_today }}</h3>
                 </div>
-                <div class="p-3 bg-purple-50 rounded-lg">
-                    <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-2 md:p-3 bg-purple-500/20 rounded-lg">
+                    <svg class="w-5 h-5 md:w-6 md:h-6 text-purple-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                     </svg>
                 </div>
             </div>
-            <div class="mt-4">
+            <div class="mt-3 md:mt-4">
                 <div class="flex items-center">
-                    <span class="text-sm text-gray-500">Attendance rate today</span>
+                    <span class="text-xs md:text-sm text-white/70">Attendance rate today</span>
                 </div>
             </div>
         </div>
 
         <!-- Absent Today -->
-        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100">
+        <div class="glass-container p-4 md:p-6 hover:bg-white/5 transition-colors duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Absent Today</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ absent_today }}</h3>
+                    <p class="text-sm font-medium text-white/80">Absent Today</p>
+                    <h3 class="text-2xl md:text-3xl font-bold text-white mt-1">{{ absent_today }}</h3>
                 </div>
-                <div class="p-3 bg-red-50 rounded-lg">
-                    <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-2 md:p-3 bg-red-500/20 rounded-lg">
+                    <svg class="w-5 h-5 md:w-6 md:h-6 text-red-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
             </div>
-            <div class="mt-4">
+            <div class="mt-3 md:mt-4">
                 <div class="flex items-center">
-                    <span class="text-sm text-gray-500">Absence rate today</span>
+                    <span class="text-xs md:text-sm text-white/70">Absence rate today</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Class List -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-5 border-b border-gray-100">
-            <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold text-gray-900">Your Classes</h2>
-                <a href="{% url 'add_class' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
-                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+        <!-- Class List -->
+        <div class="glass-container p-4 md:p-6 lg:col-span-2">
+            <div class="flex items-center justify-between mb-4 md:mb-6">
+                <h2 class="text-lg md:text-xl font-semibold text-white">Your Classes</h2>
+                <a href="{% url 'add_class' %}" class="glass-button px-3 py-1.5 md:px-4 md:py-2 rounded-lg hover:bg-white/20 inline-flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     Add Class
                 </a>
             </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-white text-left">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="p-3 md:p-4">Subject</th>
+                            <th class="p-3 md:p-4">Section</th>
+                            <th class="p-3 md:p-4">Schedule</th>
+                            <th class="p-3 md:p-4">Room</th>
+                            <th class="p-3 md:p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in class_stats %}
+                        <tr class="border-b border-white/10 hover:bg-white/5">
+                            <td class="p-3 md:p-4">
+                                <div class="text-white font-medium">{{ stat.class.subject.code }}</div>
+                                <div class="text-sm text-white/70">{{ stat.class.subject.name }}</div>
+                            </td>
+                            <td class="p-3 md:p-4">
+                                <span class="glass-button px-2 py-1 rounded-full text-xs md:text-sm">{{ stat.class.section }}</span>
+                            </td>
+                            <td class="p-3 md:p-4 text-white/80">{{ stat.class.schedule }}</td>
+                            <td class="p-3 md:p-4 text-white/80">{{ stat.class.room }}</td>
+                            <td class="p-3 md:p-4 text-right">
+                                <a href="{% url 'teacher_class_detail' stat.class.id %}" class="glass-button px-3 py-1.5 rounded-lg hover:bg-white/20 text-sm">View Details</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="p-8 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
+                                        <svg class="w-6 h-6 md:w-8 md:h-8 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg md:text-xl font-semibold text-white mb-2">No Classes Found</h3>
+                                    <p class="text-sm text-white/70">Contact the administrator to assign classes.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule</th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% for stat in class_stats %}
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ stat.class.subject.code }}</div>
-                            <div class="text-sm text-gray-500">{{ stat.class.subject.name }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 text-sm text-indigo-700 bg-indigo-50 rounded-full">{{ stat.class.section }}</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ stat.class.schedule }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{% url 'teacher_class_detail' stat.class.id %}" class="text-indigo-600 hover:text-indigo-900 font-medium">View Details</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                            <div class="flex flex-col items-center">
-                                <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                </svg>
-                                <p class="text-gray-600">No classes found. Contact the administrator to assign classes.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <!-- Today's Classes -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-5 border-b border-gray-100">
-            <h3 class="text-xl font-semibold text-gray-900">Today's Classes</h3>
-        </div>
-        <div class="divide-y divide-gray-100">
-            {% for class in todays_classes %}
-            <div class="px-6 py-5 hover:bg-gray-50 transition-colors duration-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h4 class="text-lg font-medium text-gray-900">{{ class.subject.code }} - {{ class.subject.name }}</h4>
-                        <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+        <!-- Today's Classes -->
+        <div class="glass-container p-4 md:p-6">
+            <div class="mb-4 md:mb-6">
+                <h3 class="text-lg md:text-xl font-semibold text-white">Today's Classes</h3>
+            </div>
+            <div class="space-y-3 md:space-y-4">
+                {% for class in todays_classes %}
+                <div class="glass-container p-4 hover:bg-white/5 transition-colors duration-300">
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="text-base md:text-lg font-medium text-white">{{ class.subject.code }}</h4>
+                            <p class="text-sm text-white/70">{{ class.subject.name }}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3 text-xs md:text-sm text-white/70">
                             <div class="flex items-center">
-                                <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 mr-1.5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 {{ class.schedule }}
                             </div>
                             <div class="flex items-center">
-                                <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 mr-1.5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                 </svg>
                                 Room {{ class.room }}
                             </div>
                         </div>
-                    </div>
-                    <div class="flex space-x-3">
-                        <a href="{% url 'teacher_class_attendance' class.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
-                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                            </svg>
-                            View Attendance
-                        </a>
-                        <a href="{% url 'teacher_class_detail' class.id %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                            </svg>
-                            Class Details
-                        </a>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{% url 'take_attendance' %}?class={{ class.id }}" class="glass-button px-3 py-1.5 rounded-lg hover:bg-white/20 inline-flex items-center text-sm">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                                </svg>
+                                Take Attendance
+                            </a>
+                            <a href="{% url 'teacher_class_detail' class.id %}" class="glass-button px-3 py-1.5 rounded-lg hover:bg-white/20 inline-flex items-center text-sm">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                Details
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% empty %}
-            <div class="px-6 py-8 text-center">
-                <div class="flex flex-col items-center">
-                    <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <p class="text-gray-600">No classes scheduled for today.</p>
+                {% empty %}
+                <div class="text-center p-6 md:p-8">
+                    <div class="flex flex-col items-center">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 md:w-8 md:h-8 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg md:text-xl font-semibold text-white mb-2">No Classes Today</h3>
+                        <p class="text-sm text-white/70">No classes scheduled for today.</p>
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
 </div>

@@ -1,7 +1,7 @@
-{% extends 'teachers/base.html' %}
+{% extends 'layout/base.html' %}
 {% load static %}
 
-{% block teacher_content %}
+{% block content %}
 <div class="space-y-6">
     <!-- Page Header -->
     <div class="bg-white shadow rounded-lg">
@@ -139,7 +139,7 @@
 </div>
 {% endblock %}
 
-{% block teacher_js %}
+{% block js %}
 <script>
 function editSubject(subjectId) {
     fetch(`{% url 'teacher_get_subject' 0 %}`.replace('0', subjectId))

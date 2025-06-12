@@ -1,0 +1,140 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ class.subject.code }} - {{ class.subject.name }}</h1>
+            <p class="mt-1 text-sm text-gray-500">Section {{ class.section }}</p>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="{% url 'manage_attendance' %}?class={{ class.id }}" 
+                class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+                View Attendance
+            </a>
+        </div>
+    </div>
+
+    <!-- Class Info -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Basic Info -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Class Information</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Schedule</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ class.schedule }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Room</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ class.room }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Subject Code</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ class.subject.code }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Subject Name</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ class.subject.name }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Attendance -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Attendance</h2>
+                {% if recent_attendance %}
+                <div class="space-y-4">
+                    {% for record in recent_attendance %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-sm font-medium text-gray-600">
+                                    {{ record.student.user.first_name|make_list|first }}{{ record.student.user.last_name|make_list|first }}
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">{{ record.student.user.get_full_name }}</p>
+                                <p class="text-xs text-gray-500">{{ record.date }}</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 text-xs leading-5 font-semibold rounded-full 
+                            {% if record.status == 'present' %}bg-green-100 text-green-800
+                            {% elif record.status == 'late' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ record.status|title }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500">No recent attendance records found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrolled Students -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Enrolled Students</h2>
+                <span class="px-3 py-1 text-sm text-indigo-700 bg-indigo-50 rounded-full">
+                    {{ enrolled_students.count }} Students
+                </span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for enrollment in enrolled_students %}
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <span class="text-sm font-medium text-gray-600">
+                                        {{ enrollment.student.user.first_name|make_list|first }}{{ enrollment.student.user.last_name|make_list|first }}
+                                    </span>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ enrollment.student.user.get_full_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ enrollment.student.user.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ enrollment.student.contact_number }}</div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-6 py-8 text-center">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                                <p class="text-gray-600">No students enrolled in this class yet.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

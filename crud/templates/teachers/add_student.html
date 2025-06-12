@@ -4,7 +4,7 @@
 {% block title %}Add Student - ScholarTrack{% endblock %}
 
 {% block content %}
-{% include 'include/toastmessage.html' %}
+
 <div class="p-6">
     <div class="max-w-2xl mx-auto">
         <!-- Header -->
@@ -20,7 +20,7 @@
             {% if messages %}
             <div class="mb-4">
                 {% for message in messages %}
-                <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-50 text-green-800{% else %}bg-red-50 text-red-800{% endif %}">
+                <div class="p-4 rounded-md {% if message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-green-50 text-green-800{% endif %}">
                     {{ message }}
                 </div>
                 {% endfor %}
@@ -37,6 +37,7 @@
                            id="first_name" 
                            name="first_name" 
                            type="text" 
+                           value="{{ form_data.first_name }}"
                            required>
                 </div>
                 <div>
@@ -47,6 +48,7 @@
                            id="last_name" 
                            name="last_name" 
                            type="text" 
+                           value="{{ form_data.last_name }}"
                            required>
                 </div>
             </div>
@@ -61,6 +63,7 @@
                            id="username" 
                            name="username" 
                            type="text" 
+                           value="{{ form_data.username }}"
                            required>
                 </div>
                 <div>
@@ -71,6 +74,7 @@
                            id="email" 
                            name="email" 
                            type="email" 
+                           value="{{ form_data.email }}"
                            required>
                 </div>
             </div>
@@ -86,9 +90,9 @@
                             name="gender"
                             required>
                         <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
+                        <option value="Male" {% if form_data.gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if form_data.gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if form_data.gender == 'Other' %}selected{% endif %}>Other</option>
                     </select>
                 </div>
                 <div>
@@ -99,32 +103,30 @@
                            id="contact_number" 
                            name="contact_number" 
                            type="tel" 
+                           value="{{ form_data.contact_number }}"
                            required>
                 </div>
             </div>
 
-            <!-- Time Schedule -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="time_in">
-                        Time In
-                    </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" 
-                           id="time_in" 
-                           name="time_in" 
-                           type="time"
-                           required>
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="time_out">
-                        Time Out
-                    </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" 
-                           id="time_out" 
-                           name="time_out" 
-                           type="time"
-                           required>
-                </div>
+            <!-- Class Selection -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="classes">
+                    Assign to Class
+                </label>
+                <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                        id="classes"
+                        name="classes"
+                        required>
+                    <option value="">Select Class</option>
+                    {% for class in classes %}
+                    <option value="{{ class.id }}" {% if form_data.classes == class.id %}selected{% endif %}>
+                        {{ class.subject.code }} - {{ class.subject.name }} ({{ class.section }})
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if not classes %}
+                <p class="mt-2 text-sm text-red-600">No classes available. Please create a class first.</p>
+                {% endif %}
             </div>
 
             <!-- Buttons -->
