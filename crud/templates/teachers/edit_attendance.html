@@ -31,22 +31,8 @@
             </div>
         </div>
 
-        <!-- Notes -->
-        <div>
-            <label for="notes" class="block text-sm font-medium text-white/90 mb-2">Notes</label>
-            <textarea id="notes" name="notes" rows="3"
-                class="glass-input w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white/90"
-                placeholder="Add any notes...">{{ attendance.notes }}</textarea>
-        </div>
-
-        <!-- Buttons -->
-        <div class="flex justify-end space-x-4">
-            <a href="{% url 'manage_attendance' %}" 
-                class="glass-button px-6 py-2.5 rounded-lg font-medium hover:bg-white/10 text-white/90">
-                Cancel
-            </a>
-            <button type="submit" 
-                class="glass-button px-6 py-2.5 rounded-lg font-medium bg-white/10 hover:bg-white/20 text-white/90">
+        <div class="flex justify-end">
+            <button type="submit" class="glass-button px-4 py-2 md:px-6 md:py-2.5 rounded-lg font-medium hover:bg-white/20 text-white">
                 Save Changes
             </button>
         </div>

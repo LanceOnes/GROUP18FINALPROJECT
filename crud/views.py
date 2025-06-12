@@ -16,7 +16,7 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('teacher_dashboard')
     
-    # Clear any existing messages when rendering the login page
+ 
     storage = messages.get_messages(request)
     storage.used = True
     
@@ -51,27 +51,27 @@ def signup_view(request):
             schedule = request.POST.get('schedule')
             room = request.POST.get('room', 'Default Room')  # Adding room field
 
-            # Validate passwords match
+            
             if password != confirm_password:
                 messages.error(request, 'Passwords do not match.')
                 return render(request, 'layout/signup.html', {'form_data': request.POST})
             
-            # Check if username exists
+            
             if User.objects.filter(username=username).exists():
                 messages.error(request, 'Username already exists. Please choose a different username.')
                 return render(request, 'layout/signup.html', {'form_data': request.POST})
 
-            # Check if email exists
+           
             if User.objects.filter(email=email).exists():
                 messages.error(request, 'Email already exists. Please use a different email address.')
                 return render(request, 'layout/signup.html', {'form_data': request.POST})
 
-            # Check if subject code exists
+           
             if Subject.objects.filter(code=subject_code).exists():
                 messages.error(request, 'Subject code already exists. Please use a different code.')
                 return render(request, 'layout/signup.html', {'form_data': request.POST})
             
-            # Create User account
+         
             user = User.objects.create_user(
                 username=username,
                 password=password,
@@ -80,15 +80,15 @@ def signup_view(request):
                 last_name=last_name
             )
             
-            # Create UserProfile for teacher
+           
             UserProfile.objects.create(
                 user=user,
                 role='teacher',
-                gender='',  # Can be updated later
+                gender='',  
                 contact_number=contact_number
             )
             
-            # Create Subject and Class
+            
             subject = Subject.objects.create(
                 code=subject_code,
                 name=subject_name
@@ -99,14 +99,14 @@ def signup_view(request):
                 teacher=user.userprofile,
                 section=section,
                 schedule=schedule,
-                room=room  # Adding room field
+                room=room  
             )
             
             messages.success(request, 'Account created successfully! Please login to continue.')
             return redirect('login')
             
         except Exception as e:
-            # Clean up if something goes wrong
+           
             if 'user' in locals():
                 user.delete()
             
@@ -131,24 +131,31 @@ def logout_view(request):
 
 @login_required
 def take_attendance(request):
-    """View for taking attendance for a class."""
+    print("DEBUG: Starting take_attendance view")  # Debug line
     if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
+        print(f"DEBUG: Access denied. User role: {getattr(request.user.userprofile, 'role', 'No role')}")  # Debug line
         messages.error(request, 'Access denied. Teacher access only.')
         return redirect('login')
 
-    # Get teacher's classes with subject information
+    
     teacher_classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
-    selected_class = request.GET.get('class')
+    print(f"DEBUG: Found {teacher_classes.count()} classes for teacher")  # Debug line
+    
+   
+    selected_class = request.POST.get('class') or request.GET.get('class')
     enrollments = []
 
     if selected_class:
         try:
-            # Verify the class belongs to the teacher
+            
             class_obj = teacher_classes.get(id=selected_class)
+            print(f"DEBUG: Selected class: {class_obj}")  # Debug line
             # Get all enrollments for the class
             enrollments = ClassEnrollment.objects.filter(class_instance=class_obj).select_related('student__user')
+            print(f"DEBUG: Found {enrollments.count()} enrollments")  # Debug line
 
             if request.method == 'POST':
+                print("DEBUG: Processing POST request")  # Debug line
                 date = request.POST.get('date')
                 if not date:
                     messages.error(request, 'Date is required')
@@ -162,7 +169,9 @@ def take_attendance(request):
                     student_id = enrollment.student.id
                     status = request.POST.get(f'status_{student_id}')
                     time_in = request.POST.get(f'time_{student_id}')
-                    notes = request.POST.get(f'notes_{student_id}', '')
+                    
+                    print(f"DEBUG: Processing attendance for student {student_id}")  # Debug line
+                    print(f"DEBUG: Status: {status}, Time: {time_in}")  # Debug line
 
                     try:
                         # Create or update attendance record
@@ -172,13 +181,14 @@ def take_attendance(request):
                             date=date,
                             defaults={
                                 'status': status,
-                                'time_in': time_in,
-                                'notes': notes
+                                'time_in': time_in
                             }
                         )
+                        print(f"DEBUG: Attendance {'created' if created else 'updated'} successfully")  # Debug line
                         success_count += 1
                     except Exception as e:
                         error_count += 1
+                        print(f"DEBUG: Error saving attendance: {str(e)}")  # Debug line
                         messages.error(request, f'Error recording attendance for {enrollment.student.user.get_full_name()}: {str(e)}')
 
                 if success_count > 0:
@@ -186,12 +196,15 @@ def take_attendance(request):
                 if error_count > 0:
                     messages.warning(request, f'Failed to record attendance for {error_count} student(s).')
                 
-                return redirect('manage_attendance')
+                # Stay on the same page after submission
+                return redirect('take_attendance')
 
         except Class.DoesNotExist:
+            print("DEBUG: Invalid class selected")  # Debug line
             messages.error(request, 'Invalid class selected.')
             return redirect('take_attendance')
         except Exception as e:
+            print(f"DEBUG: Error: {str(e)}")  # Debug line
             messages.error(request, f'Error recording attendance: {str(e)}')
 
     context = {
@@ -205,40 +218,60 @@ def take_attendance(request):
 
 @login_required
 def teacher_dashboard(request):
-    # Check if user has a profile
-    if not hasattr(request.user, 'userprofile'):
-        # Create a default profile if it doesn't exist
-        UserProfile.objects.create(
-            user=request.user,
-            role='teacher',
-            gender='',
-            contact_number=''
-        )
-    elif request.user.userprofile.role != 'teacher':
+    """View for teacher's dashboard."""
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
         messages.error(request, 'Access denied. Teacher access only.')
         return redirect('login')
+
+    # Get teacher's classes
+    teacher_classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
     
-    teacher_profile = request.user.userprofile
-    classes = Class.objects.filter(teacher=teacher_profile)
-    
+    # Get today's date and weekday
     today = timezone.now().date()
-    class_stats = []
+    today_weekday = timezone.now().strftime('%A')[:3].upper()  # Get first 3 letters of weekday
     
-    for class_obj in classes:
-        total_students = class_obj.enrollments.count()
-        todays_attendance = Attendance.objects.filter(
-            class_instance=class_obj,
-            date=today
-        ).count()
-        
+    # Get today's classes
+    todays_classes = teacher_classes.filter(schedule__icontains=today_weekday)
+    
+    # Get students enrolled in today's classes
+    enrolled_students = ClassEnrollment.objects.filter(
+        class_instance__in=todays_classes
+    ).values('student').distinct()
+    
+    # Calculate total students (unique students across all classes)
+    total_students = ClassEnrollment.objects.filter(
+        class_instance__in=teacher_classes
+    ).values('student').distinct().count()
+    
+    # Calculate total classes
+    total_classes = teacher_classes.count()
+    
+    # Calculate present and absent for today's classes only
+    present_today = Attendance.objects.filter(
+        class_instance__in=todays_classes,
+        date=today,
+        status='present'
+    ).values('student').distinct().count()
+    
+    # Calculate absent as the difference between enrolled and present students
+    total_expected = enrolled_students.count()
+    absent_today = max(0, total_expected - present_today)
+    
+    # Get class statistics
+    class_stats = []
+    for class_obj in teacher_classes:
+        total_enrolled = ClassEnrollment.objects.filter(class_instance=class_obj).count()
         class_stats.append({
             'class': class_obj,
-            'total_students': total_students,
-            'marked_today': todays_attendance,
-            'pending_today': total_students - todays_attendance
+            'total_enrolled': total_enrolled
         })
-    
+
     context = {
+        'total_students': total_students,
+        'total_classes': total_classes,
+        'present_today': present_today,
+        'absent_today': absent_today,
+        'todays_classes': todays_classes,
         'class_stats': class_stats,
         'page_title': 'Teacher Dashboard'
     }
@@ -248,7 +281,9 @@ def teacher_dashboard(request):
 @login_required
 def manage_attendance(request):
     """View for displaying attendance records."""
+    print("DEBUG: Starting manage_attendance view")  # Debug line
     if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
+        print(f"DEBUG: Access denied. User role: {getattr(request.user.userprofile, 'role', 'No role')}")  # Debug line
         messages.error(request, 'Access denied. Teacher access only.')
         return redirect('login')
 
@@ -257,28 +292,40 @@ def manage_attendance(request):
     status_filter = request.GET.get('status')
     class_filter = request.GET.get('class')
     
+    print(f"DEBUG: Filters - Date: {date_filter}, Status: {status_filter}, Class: {class_filter}")  # Debug line
+    
     # Base queryset - filter by teacher's classes
     teacher_classes = Class.objects.filter(teacher=request.user.userprofile).values_list('id', flat=True)
+    print(f"DEBUG: Found {len(teacher_classes)} teacher classes")  # Debug line
+    
     attendance_list = Attendance.objects.select_related(
         'student__user', 
         'class_instance__subject'
     ).filter(class_instance__in=teacher_classes).order_by('-date', '-time_in')
     
+    print(f"DEBUG: Initial attendance count: {attendance_list.count()}")  # Debug line
+    
     # Apply filters
     if date_filter:
         attendance_list = attendance_list.filter(date=date_filter)
+        print(f"DEBUG: After date filter: {attendance_list.count()} records")  # Debug line
     if status_filter:
         attendance_list = attendance_list.filter(status=status_filter)
+        print(f"DEBUG: After status filter: {attendance_list.count()} records")  # Debug line
     if class_filter:
         attendance_list = attendance_list.filter(class_instance_id=class_filter)
+        print(f"DEBUG: After class filter: {attendance_list.count()} records")  # Debug line
     
     # Get only this teacher's classes for the filter dropdown
     classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
+    print(f"DEBUG: Classes for dropdown: {classes.count()}")  # Debug line
     
     # Pagination
     paginator = Paginator(attendance_list, 10)
     page_number = request.GET.get('page', 1)
     attendance_records = paginator.get_page(page_number)
+    
+    print(f"DEBUG: Final attendance records count: {len(attendance_records)}")  # Debug line
     
     context = {
         'page_title': 'Manage Attendance',
@@ -735,7 +782,6 @@ def edit_attendance(request, record_id):
             # Update attendance record
             attendance.status = request.POST.get('status')
             attendance.time_in = request.POST.get('time_in')
-            attendance.notes = request.POST.get('notes', '')
             attendance.save()
             messages.success(request, 'Attendance record updated successfully!')
         except Exception as e:

@@ -22,9 +22,9 @@
     </div>
 
     <!-- Attendance Form -->
-    <form method="POST" class="glass-container p-4 md:p-6 space-y-4 md:space-y-6" id="attendance-form" style="display: none;">
+    <form method="POST" action="{% url 'take_attendance' %}" class="glass-container p-4 md:p-6 space-y-4 md:space-y-6" id="attendance-form" style="display: none;">
         {% csrf_token %}
-        <input type="hidden" name="class_id" id="class-id-input">
+        <input type="hidden" name="class" id="class-id-input">
         
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2 md:mb-4">
             <h2 class="text-lg md:text-xl font-semibold text-white">Mark Attendance</h2>
@@ -44,7 +44,6 @@
                         <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90 border-r border-white/10">Student</th>
                         <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90 border-r border-white/10">Status</th>
                         <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90 border-r border-white/10">Time</th>
-                        <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90">Notes</th>
                     </tr>
                 </thead>
                 <tbody id="student-list" class="divide-y divide-white/10">
@@ -135,9 +134,6 @@
                                 </td>
                                 <td class="p-3 md:p-4 border-r border-white/10">
                                     <input type="time" name="time_${student.id}" class="glass-input w-full p-2 rounded-lg bg-[#2a2a3a] text-white/90 border border-white/10" value="${new Date().toTimeString().slice(0,5)}" required>
-                                </td>
-                                <td class="p-3 md:p-4">
-                                    <input type="text" name="notes_${student.id}" class="glass-input w-full p-2 rounded-lg bg-[#2a2a3a] text-white/90 border border-white/10" placeholder="Add notes...">
                                 </td>
                             `;
                             studentList.appendChild(row);

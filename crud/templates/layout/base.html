@@ -1,6 +1,20 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      x-data="{
+          sidebarOpen: localStorage.getItem('sidebarOpen') === 'true',
+          isMobile: window.innerWidth < 768,
+          init() {
+              if (localStorage.getItem('sidebarOpen') === null) {
+                  localStorage.setItem('sidebarOpen', 'true');
+                  this.sidebarOpen = true;
+              }
+              window.addEventListener('resize', () => {
+                  this.isMobile = window.innerWidth < 768;
+              });
+          }
+      }"
+      @resize.window="isMobile = window.innerWidth < 768">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -234,55 +248,20 @@
 
     {% block extra_css %}{% endblock %}
 </head>
-<body x-data="{ 
-    sidebarOpen: localStorage.getItem('sidebarOpen') === 'true' || window.innerWidth >= 768,
-    isMobile: window.innerWidth < 768,
-    init() {
-        this.$watch('sidebarOpen', value => {
-            localStorage.setItem('sidebarOpen', value);
-        });
-        window.addEventListener('resize', () => {
-            this.isMobile = window.innerWidth < 768;
-            if (!this.isMobile && !this.sidebarOpen) {
-                this.sidebarOpen = true;
-            }
-        });
-    }
-}">
+<body>
     <div class="min-h-screen">
         {% if not hide_sidebar %}
             {% include 'include/sidebar.html' %}
-            
-            <!-- Main content with sidebar -->
-            <div class="transition-all duration-300 content-wrapper"
-                 :class="{'sidebar-collapsed': !sidebarOpen && !isMobile}">
-                <div class="p-4 md:p-8">
-                    <!-- Mobile menu button -->
-                    <button type="button" 
-                            class="fixed top-4 left-4 z-50 p-2 rounded-lg text-white/90 hover:bg-white/10 md:hidden"
-                            @click="sidebarOpen = !sidebarOpen">
-                        <span class="sr-only">Toggle sidebar</span>
-                        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
-                        </svg>
-                    </button>
+        {% endif %}
 
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="mb-4 p-4 rounded-md toast-message {% if message.tags == 'success' %}bg-green-500/20 border-green-500/30{% elif message.tags == 'error' %}bg-red-500/20 border-red-500/30{% else %}bg-blue-500/20 border-blue-500/30{% endif %}"
-                                 x-data="{ show: true }"
-                                 x-show="show"
-                                 x-init="setTimeout(() => show = false, 5000)">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    {% block content %}{% endblock %}
-                </div>
-            </div>
-        {% else %}
-            <!-- Content without sidebar -->
-            <div class="container mx-auto px-4 py-8">
+        <!-- Content Wrapper -->
+        <div class="transition-all duration-300"
+             :class="{
+                 'ml-64': sidebarOpen,
+                 'ml-16': !sidebarOpen
+             }">
+            <!-- Content -->
+            <main class="p-4 md:p-8">
                 {% if messages %}
                     {% for message in messages %}
                         <div class="mb-4 p-4 rounded-md toast-message {% if message.tags == 'success' %}bg-green-500/20 border-green-500/30{% elif message.tags == 'error' %}bg-red-500/20 border-red-500/30{% else %}bg-blue-500/20 border-blue-500/30{% endif %}"
@@ -293,9 +272,9 @@
                         </div>
                     {% endfor %}
                 {% endif %}
-                {% block main %}{{ block.super }}{% endblock %}
-            </div>
-        {% endif %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
     </div>
     
     <!-- Custom JavaScript -->
