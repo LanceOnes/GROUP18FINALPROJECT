@@ -2,13 +2,15 @@
 {% load static %}
 
 {% block content %}
-<div class="min-h-screen w-full">
-    <!-- Header -->
+{% include 'include/sidebar.html' %}
+
+<div class="pt-20 sm:ml-60 px-10">
+    
     <div class="glass-container p-4 md:p-6 mb-4 md:mb-6">
         <h1 class="text-2xl md:text-3xl font-bold text-white">Attendance Records</h1>
     </div>
 
-    <!-- Filter Section -->
+    
     <div class="glass-container p-4 md:p-6 mb-4 md:mb-6">
         <h2 class="text-lg md:text-xl font-semibold text-white mb-4 md:mb-6">Filter Records</h2>
         <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -19,7 +21,7 @@
             </div>
             <div>
                 <label for="class" class="block text-sm font-medium text-white/90 mb-2">Class</label>
-                <select id="class" name="class" class="glass-input w-full rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a]">
+                <select id="class" name="class" class="glass-input w-full rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a] py-3 text-lg">
                     <option value="">All Classes</option>
                     {% for class in classes %}
                     <option value="{{ class.id }}" {% if class.id|stringformat:"s" == current_class %}selected{% endif %}>
@@ -30,7 +32,7 @@
             </div>
             <div>
                 <label for="status" class="block text-sm font-medium text-white/90 mb-2">Status</label>
-                <select id="status" name="status" class="glass-input w-full rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a]">
+                <select id="status" name="status" class="glass-input w-full rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a] py-3 text-lg">
                     <option value="">All Status</option>
                     {% for status_value, status_label in status_choices %}
                     <option value="{{ status_value }}" {% if status_value == current_status %}selected{% endif %}>
@@ -50,7 +52,7 @@
         </form>
     </div>
 
-    <!-- Records Table -->
+    
     <div class="glass-container p-4 md:p-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 md:mb-6 space-y-2 md:space-y-0">
             <h2 class="text-lg md:text-xl font-semibold text-white">Attendance Records</h2>

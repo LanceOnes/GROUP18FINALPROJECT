@@ -1,0 +1,130 @@
+{% if filtered_count == 0 %}
+<!-- No Search Results -->
+<div class="glass-container p-8 text-center">
+    <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <svg class="w-8 h-8 md:w-10 md:h-10 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+    </div>
+    <h3 class="text-xl md:text-2xl font-semibold text-white mb-3">No students found</h3>
+    <p class="text-base text-white/70 max-w-md mx-auto">
+        {% if search_query %}
+        No students match your search "{{ search_query }}". Try a different search term.
+        {% elif selected_class %}
+        No students found in the selected class.
+        {% else %}
+        No students found with the current filters.
+        {% endif %}
+    </p>
+</div>
+{% else %}
+<!-- Students Table -->
+<div class="glass-container p-6 md:p-8">
+    <div class="overflow-hidden rounded-xl border border-white/10">
+        <table class="w-full text-white text-left">
+            <thead>
+                <tr class="border-b border-white/10 bg-white/5">
+                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">#</th>
+                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Name</th>
+                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Email</th>
+                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Gender</th>
+                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Username</th>
+                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Contact No.</th>
+                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Class</th>
+                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10">
+                {% for student in students %}
+                <tr class="hover:bg-white/5 transition-colors duration-200">
+                    <td class="p-4 md:p-5 text-white/90">{{ forloop.counter }}</td>
+                    <td class="p-4 md:p-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                                <span class="text-sm font-medium text-white">
+                                    {{ student.user.get_full_name|make_list|first }}
+                                </span>
+                            </div>
+                            <div>
+                                <div class="text-sm md:text-base font-medium text-white">{{ student.user.get_full_name }}</div>
+                                <div class="text-xs md:text-sm text-white/60">ID: {{ student.id_number }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-4 md:p-5 text-white/80">{{ student.user.email }}</td>
+                    <td class="p-4 md:p-5">
+                        <span class="glass-button px-3 py-1 rounded-xl text-sm">{{ student.gender }}</span>
+                    </td>
+                    <td class="p-4 md:p-5 text-white/80">{{ student.user.username }}</td>
+                    <td class="p-4 md:p-5 text-white/80">{{ student.contact_number }}</td>
+                    <td class="p-4 md:p-5">
+                        {% for enrollment in student.enrolled_classes.all %}
+                        <div class="glass-button px-3 py-1 rounded-xl text-sm inline-flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            {{ enrollment.class_instance.subject.code }} - {{ enrollment.class_instance.section }}
+                        </div>
+                        {% empty %}
+                        <span class="text-sm text-white/50">Not assigned</span>
+                        {% endfor %}
+                    </td>
+                    <td class="p-4 md:p-5">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{% url 'edit_student' student.id %}" class="glass-button p-2 rounded-xl hover:bg-white/20 transition-colors duration-200">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </a>
+                            <button onclick="confirmDelete('{% url 'delete_student' student.id %}')" class="glass-button p-2 rounded-xl hover:bg-red-500/20 transition-colors duration-200">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if students.paginator.num_pages > 1 %}
+<div class="glass-container p-6 md:p-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="text-sm md:text-base text-white/70">
+            Showing 
+            <span class="text-white font-medium">{{ students.start_index }}</span>
+            to
+            <span class="text-white font-medium">{{ students.end_index }}</span>
+            of
+            <span class="text-white font-medium">{{ total_students }}</span>
+            entries
+        </div>
+        <div class="flex items-center gap-2 flex-wrap justify-center">
+            {% if students.has_previous %}
+            <a href="?page={{ students.previous_page_number }}" class="glass-button px-4 py-2 rounded-xl hover:bg-white/20 text-white transition-all duration-300">Previous</a>
+            {% else %}
+            <span class="glass-button px-4 py-2 rounded-xl opacity-50 cursor-not-allowed text-white">Previous</span>
+            {% endif %}
+
+            {% for num in students.paginator.page_range %}
+            {% if num == students.number %}
+            <span class="glass-button px-4 py-2 rounded-xl bg-white/20 text-white">{{ num }}</span>
+            {% elif num > students.number|add:'-3' and num < students.number|add:'3' %}
+            <a href="?page={{ num }}" class="glass-button px-4 py-2 rounded-xl hover:bg-white/20 text-white transition-all duration-300">{{ num }}</a>
+            {% endif %}
+            {% endfor %}
+
+            {% if students.has_next %}
+            <a href="?page={{ students.next_page_number }}" class="glass-button px-4 py-2 rounded-xl hover:bg-white/20 text-white transition-all duration-300">Next</a>
+            {% else %}
+            <span class="glass-button px-4 py-2 rounded-xl opacity-50 cursor-not-allowed text-white">Next</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endif %} 

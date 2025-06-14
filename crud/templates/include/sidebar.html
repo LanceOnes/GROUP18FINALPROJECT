@@ -1,15 +1,16 @@
 {% load static %}
 
 <!-- Sidebar -->
-<aside class="fixed top-0 left-0 z-40 h-screen transition-all duration-300"
+<aside class="fixed top-0 left-0 z-40 h-screen transition-all duration-300 overflow-x-hidden"
        :class="{
-           'w-64': sidebarOpen,
-           'w-16': !sidebarOpen
+           'w-16': sidebarOpen,
+           'w-10': !sidebarOpen
        }">
-   <div class="h-full px-2 py-4 overflow-y-auto flex flex-col glass-sidebar">
+   <div class="h-full px-2 py-4 overflow-y-auto overflow-x-hidden flex flex-col glass-sidebar">
       <!-- Sidebar Header with Toggle -->
       <div class="flex items-center justify-between mb-8">
          <a href="{% url 'teacher_dashboard' %}" class="flex items-center overflow-hidden">
+            <img src="{% static 'images/finallogo.png' %}" alt="logo" class="w-16 h-16 mr-2 transition-all duration-300">
             <span class="self-center text-xl font-semibold text-white transition-all duration-300"
                   :class="{'w-0 opacity-0': !sidebarOpen, 'w-auto opacity-100': sidebarOpen}">ScholarTrack</span>
          </a>
@@ -26,7 +27,7 @@
       </div>
 
       <!-- Main Navigation -->
-      <ul class="space-y-2 flex-1">
+      <ul class="space-y-6 flex-1">
          {% if user.is_authenticated %}
             <!-- Navigation Items -->
             <li>
@@ -97,18 +98,5 @@
             </li>
          {% endif %}
       </ul>
-
-      {% if user.is_authenticated %}
-      <!-- Logout Section -->
-      <div class="pt-2 mt-2 border-t hover:border-red-500 border-white/10">
-         <a href="{% url 'logout' %}" class="flex items-center p-2 text-white/90 rounded-lg hover:bg-white/10 group">
-            <svg class="flex-shrink-0 w-6 h-6 text-white/70 transition duration-75 group-hover:text-red-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
-               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h11m0 0-4-4m4 4-4 4m-5 3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h3"/>
-            </svg>
-            <span class="flex-1 ml-3 whitespace-nowrap transition-all duration-300"
-                  :class="{'w-0 opacity-0': !sidebarOpen, 'w-auto opacity-100': sidebarOpen}">Logout</span>
-         </a>
-      </div>
-      {% endif %}
    </div>
 </aside>

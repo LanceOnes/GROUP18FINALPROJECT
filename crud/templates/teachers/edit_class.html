@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="content-wrapper transition-all duration-300 ml-16" :class="{'ml-64': sidebarOpen, 'ml-16': !sidebarOpen}">
     <!-- Header -->
     <div class="glass-container p-6">
         <h1 class="text-3xl font-bold text-white/90">Edit Class</h1>

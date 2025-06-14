@@ -1,133 +1,142 @@
 {% extends 'layout/base.html' %}
 {% load static %}
 
+{% block title %}{{ class.subject.name }} - ScholarTrack{% endblock %}
+
 {% block content %}
-<div class="space-y-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">{{ class.subject.code }} - {{ class.subject.name }}</h1>
-            <p class="mt-1 text-sm text-gray-500">Section {{ class.section }}</p>
-        </div>
-        <div class="flex items-center space-x-4">
-            <a href="{% url 'manage_attendance' %}?class={{ class.id }}" 
-                class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+{% include 'include/sidebar.html' %}
+
+<div class="pt-20 sm:ml-60 px-10">
+    <!-- Header Section -->
+    <div class="glass-container p-6 md:p-8 mb-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 md:w-14 md:h-14 bg-white/10 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
-                View Attendance
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-1">
+                    <h1 class="text-2xl md:text-3xl font-bold text-white">{{ class.subject.name }}</h1>
+                    <span class="glass-button px-3 py-1 rounded-xl text-sm">Section {{ class.section }}</span>
+                </div>
+                <p class="text-sm md:text-base text-white/70">Subject Code: {{ class.subject.code }}</p>
+            </div>
+            <a href="{% url 'take_attendance' %}?class={{ class.id }}" class="glass-button px-6 py-3 rounded-xl font-medium hover:bg-white/20 flex items-center gap-2 text-white transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                Take Attendance
             </a>
         </div>
     </div>
 
-    <!-- Class Info -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Basic Info -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Class Information</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Schedule</label>
-                        <p class="mt-1 text-sm text-gray-900">{{ class.schedule }}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Room</label>
-                        <p class="mt-1 text-sm text-gray-900">{{ class.room }}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Subject Code</label>
-                        <p class="mt-1 text-sm text-gray-900">{{ class.subject.code }}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Subject Name</label>
-                        <p class="mt-1 text-sm text-gray-900">{{ class.subject.name }}</p>
-                    </div>
-                </div>
+    <!-- Class Information -->
+    <div class="glass-container p-6 md:p-8 mb-6">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-lg md:text-xl font-semibold text-white">Class Information</h2>
+                <p class="text-sm text-white/60">Schedule and room details</p>
             </div>
         </div>
 
-        <!-- Recent Attendance -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Attendance</h2>
-                {% if recent_attendance %}
-                <div class="space-y-4">
-                    {% for record in recent_attendance %}
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                                <span class="text-sm font-medium text-gray-600">
-                                    {{ record.student.user.first_name|make_list|first }}{{ record.student.user.last_name|make_list|first }}
-                                </span>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-900">{{ record.student.user.get_full_name }}</p>
-                                <p class="text-xs text-gray-500">{{ record.date }}</p>
-                            </div>
-                        </div>
-                        <span class="px-3 py-1 text-xs leading-5 font-semibold rounded-full 
-                            {% if record.status == 'present' %}bg-green-100 text-green-800
-                            {% elif record.status == 'late' %}bg-yellow-100 text-yellow-800
-                            {% else %}bg-red-100 text-red-800{% endif %}">
-                            {{ record.status|title }}
-                        </span>
-                    </div>
-                    {% endfor %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-container p-4 md:p-5 bg-white/5">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-sm font-medium text-white/90">Schedule</h3>
                 </div>
-                {% else %}
-                <p class="text-sm text-gray-500">No recent attendance records found.</p>
-                {% endif %}
+                <p class="text-lg text-white pl-8">{{ class.schedule }}</p>
+            </div>
+
+            <div class="glass-container p-4 md:p-5 bg-white/5">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    <h3 class="text-sm font-medium text-white/90">Room</h3>
+                </div>
+                <p class="text-lg text-white pl-8">{{ class.room }}</p>
             </div>
         </div>
     </div>
 
     <!-- Enrolled Students -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="p-6 border-b border-gray-100">
-            <div class="flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-900">Enrolled Students</h2>
-                <span class="px-3 py-1 text-sm text-indigo-700 bg-indigo-50 rounded-full">
-                    {{ enrolled_students.count }} Students
-                </span>
+    <div class="glass-container p-6 md:p-8">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg md:text-xl font-semibold text-white">Enrolled Students</h2>
+                    <p class="text-sm text-white/60">{{ enrolled_students.count }} students in this class</p>
+                </div>
             </div>
+            <span class="glass-button px-4 py-2 rounded-xl text-sm font-medium">
+                {{ enrolled_students.count }} Total
+            </span>
         </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+
+        {% if enrolled_students %}
+        <div class="overflow-hidden rounded-xl border border-white/10">
+            <table class="w-full text-white text-left">
+                <thead>
+                    <tr class="border-b border-white/10 bg-white/5">
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">#</th>
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Student</th>
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Email</th>
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Username</th>
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Contact</th>
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Gender</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="divide-y divide-white/10">
                     {% for enrollment in enrolled_students %}
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                                    <span class="text-sm font-medium text-gray-600">
-                                        {{ enrollment.student.user.first_name|make_list|first }}{{ enrollment.student.user.last_name|make_list|first }}
+                    <tr class="hover:bg-white/5 transition-colors duration-200">
+                        <td class="p-4 md:p-5 text-white/90">{{ forloop.counter }}</td>
+                        <td class="p-4 md:p-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                                    <span class="text-sm font-medium text-white">
+                                        {{ enrollment.student.user.get_full_name|make_list|first }}
                                     </span>
                                 </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ enrollment.student.user.get_full_name }}</div>
-                                    <div class="text-sm text-gray-500">{{ enrollment.student.user.username }}</div>
+                                <div>
+                                    <div class="text-sm md:text-base font-medium text-white">{{ enrollment.student.user.get_full_name }}</div>
+                                    <div class="text-xs md:text-sm text-white/60">ID: {{ enrollment.student.id }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ enrollment.student.contact_number }}</div>
+                        <td class="p-4 md:p-5 text-white/80">{{ enrollment.student.user.email }}</td>
+                        <td class="p-4 md:p-5 text-white/80">{{ enrollment.student.user.username }}</td>
+                        <td class="p-4 md:p-5">
+                            <span class="glass-button px-3 py-1.5 rounded-lg text-sm">{{ enrollment.student.contact_number }}</span>
+                        </td>
+                        <td class="p-4 md:p-5">
+                            <span class="glass-button px-3 py-1.5 rounded-lg text-sm">{{ enrollment.student.gender }}</span>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3" class="px-6 py-8 text-center">
+                        <td colspan="6" class="p-6 md:p-8 text-center">
                             <div class="flex flex-col items-center">
-                                <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                </svg>
-                                <p class="text-gray-600">No students enrolled in this class yet.</p>
+                                <div class="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
+                                    <svg class="w-6 h-6 md:w-8 md:h-8 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg md:text-xl font-semibold text-white mb-2">No Students Enrolled</h3>
+                                <p class="text-sm text-white/70">There are no students enrolled in this class yet.</p>
                             </div>
                         </td>
                     </tr>
@@ -135,6 +144,25 @@
                 </tbody>
             </table>
         </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <svg class="w-8 h-8 md:w-10 md:h-10 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl md:text-2xl font-semibold text-white mb-3">No Students Enrolled</h3>
+            <p class="text-base text-white/70 max-w-md mx-auto mb-6">
+                This class doesn't have any enrolled students yet.
+            </p>
+            <a href="{% url 'add_student' %}" class="glass-button px-6 py-3 rounded-xl font-medium hover:bg-white/20 inline-flex items-center gap-2 text-white transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add Student
+            </a>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %} 

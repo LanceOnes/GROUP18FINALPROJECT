@@ -3,47 +3,88 @@
 {% block title %}Take Attendance - ScholarTrack{% endblock %}
 
 {% block content %}
-<div class="min-h-screen w-full space-y-4 md:space-y-6">
-    <!-- Header -->
-    <div class="glass-container p-4 md:p-6">
-        <h1 class="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">Take Attendance</h1>
-        <p class="text-sm md:text-base text-white/70" id="current-date"></p>
+{% include 'include/sidebar.html' %}
+
+<div class="pt-20 sm:ml-60 px-10">
+    <!-- Form Section -->
+    <div class="glass-container p-6 md:p-8 mb-6">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-lg md:text-xl font-semibold text-white">Take Attendance</h2>
+                <p class="text-sm text-white/60">Record student attendance for your class</p>
+            </div>
+        </div>
     </div>
 
     <!-- Class Selection -->
-    <div class="glass-container p-4 md:p-6">
-        <h2 class="text-lg md:text-xl font-semibold text-white mb-3 md:mb-4">Select Class</h2>
-        <select id="class-select" class="glass-select w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a] border border-white/10">
+    <div class="glass-container p-6 md:p-8 mb-6">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-lg md:text-xl font-semibold text-white">Select Class</h2>
+                <p class="text-sm text-white/60">Choose a class to take attendance</p>
+            </div>
+        </div>
+        <select id="class-select" class="glass-select w-full p-3 md:p-4 text-lg rounded-xl bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a] border border-white/10 transition-all duration-300 hover:border-white/20 focus:border-white/30">
             <option value="" class="bg-[#2a2a3a]">Select a class...</option>
             {% for class in classes %}
-                <option value="{{ class.id }}" class="bg-[#2a2a3a]">{{ class.subject.code }} - {{ class.subject.name }} (Section {{ class.section }})</option>
+                <option value="{{ class.id }}" class="bg-[#2a2a3a] py-2">{{ class.subject.code }} - {{ class.subject.name }} (Section {{ class.section }})</option>
             {% endfor %}
         </select>
     </div>
 
     <!-- Attendance Form -->
-    <form method="POST" action="{% url 'take_attendance' %}" class="glass-container p-4 md:p-6 space-y-4 md:space-y-6" id="attendance-form" style="display: none;">
+    <form method="POST" action="{% url 'take_attendance' %}" class="glass-container p-6 md:p-8 space-y-6" id="attendance-form" style="display: none;">
         {% csrf_token %}
         <input type="hidden" name="class" id="class-id-input">
         
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2 md:mb-4">
-            <h2 class="text-lg md:text-xl font-semibold text-white">Mark Attendance</h2>
-            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 w-full sm:w-auto">
-                <div class="w-full sm:w-auto">
-                    <label for="date-input" class="block text-sm font-medium text-white/70 mb-1 sm:hidden">Date</label>
-                    <input type="date" name="date" id="date-input" class="glass-input w-full sm:w-auto p-2 rounded-lg bg-[#2a2a3a] text-white/90 border border-white/10" required>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                 </div>
-                <p class="text-sm md:text-base text-white/70" id="current-time"></p>
+                <div>
+                    <h2 class="text-lg md:text-xl font-semibold text-white">Mark Attendance</h2>
+                    <p class="text-sm text-white/60">Record student attendance</p>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+                <div class="w-full sm:w-auto relative">
+                    <label for="date-input" class="block text-sm font-medium text-white/70 mb-2 sm:hidden">Date</label>
+                    <div class="relative">
+                        <input type="date" name="date" id="date-input" class="glass-input w-full sm:w-auto pl-10 pr-4 py-3 rounded-xl bg-[#2a2a3a] text-white/90 border border-white/10 transition-all duration-300 hover:border-white/20 focus:border-white/30" required>
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-white/70">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-sm md:text-base" id="current-time"></p>
+                </div>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-hidden rounded-xl border border-white/10">
             <table class="w-full text-left">
                 <thead>
-                    <tr class="border-b border-white/10">
-                        <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90 border-r border-white/10">Student</th>
-                        <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90 border-r border-white/10">Status</th>
-                        <th class="p-3 md:p-4 text-sm md:text-base font-medium text-white/90 border-r border-white/10">Time</th>
+                    <tr class="border-b border-white/10 bg-white/5">
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Student</th>
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Status</th>
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Time</th>
                     </tr>
                 </thead>
                 <tbody id="student-list" class="divide-y divide-white/10">
@@ -52,22 +93,25 @@
             </table>
         </div>
 
-        <div class="flex justify-end pt-2">
-            <button type="submit" class="glass-button px-4 py-2 md:px-6 md:py-2.5 rounded-lg font-medium hover:bg-white/20 text-white w-full sm:w-auto">
+        <div class="flex justify-end pt-4">
+            <button type="submit" class="glass-button px-6 py-3 rounded-xl font-medium hover:bg-white/20 text-white w-full sm:w-auto flex items-center justify-center gap-2 transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
                 Save Attendance
             </button>
         </div>
     </form>
 
     <!-- No Students Message -->
-    <div id="no-students-message" class="glass-container p-4 md:p-6 text-center" style="display: none;">
-        <div class="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-6 h-6 md:w-8 md:h-8 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div id="no-students-message" class="glass-container p-8 text-center" style="display: none;">
+        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <svg class="w-8 h-8 md:w-10 md:h-10 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
             </svg>
         </div>
-        <h3 class="text-lg md:text-xl font-semibold text-white mb-2">No Students Found</h3>
-        <p class="text-sm md:text-base text-white/70">There are no students enrolled in this class.</p>
+        <h3 class="text-xl md:text-2xl font-semibold text-white mb-3">No Students Found</h3>
+        <p class="text-base text-white/70 max-w-md mx-auto">There are no students enrolled in this class. Please add students to the class before taking attendance.</p>
     </div>
 </div>
 
@@ -79,24 +123,18 @@
     function updateDateTime() {
         const now = new Date();
         const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
         
         document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', dateOptions);
         document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', timeOptions);
-        
-        // Set the date input's value to today's date in YYYY-MM-DD format
-        const dateInput = document.getElementById('date-input');
-        if (dateInput && !dateInput.value) {
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            dateInput.value = `${year}-${month}-${day}`;
-        }
     }
-
-    setInterval(updateDateTime, 1000);
+    
     updateDateTime();
-
+    setInterval(updateDateTime, 1000);
+    
+    // Set default date to today
+    document.getElementById('date-input').valueAsDate = new Date();
+    
     // Handle class selection
     document.getElementById('class-select').addEventListener('change', function() {
         const classId = this.value;
@@ -112,12 +150,12 @@
                     if (students.length > 0) {
                         students.forEach(student => {
                             const row = document.createElement('tr');
-                            row.className = 'hover:bg-white/5';
+                            row.className = 'hover:bg-white/5 transition-colors duration-200';
                             row.innerHTML = `
-                                <td class="p-3 md:p-4 border-r border-white/10">
-                                    <div class="flex items-center gap-2 md:gap-3">
-                                        <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 flex items-center justify-center">
-                                            <span class="text-xs md:text-sm font-medium text-white">${student.name.charAt(0)}</span>
+                                <td class="p-4 md:p-5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                                            <span class="text-sm font-medium text-white">${student.name.charAt(0)}</span>
                                         </div>
                                         <div>
                                             <div class="text-sm md:text-base font-medium text-white">${student.name}</div>
@@ -125,15 +163,20 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="p-3 md:p-4 border-r border-white/10">
-                                    <select name="status_${student.id}" class="glass-select w-full p-2 rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a] border border-white/10" required>
+                                <td class="p-4 md:p-5">
+                                    <select name="status_${student.id}" class="glass-select w-full p-3 rounded-xl bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a] border border-white/10 transition-all duration-300 hover:border-white/20 focus:border-white/30" required>
                                         <option value="present" class="bg-[#2a2a3a]">Present</option>
                                         <option value="late" class="bg-[#2a2a3a]">Late</option>
                                         <option value="absent" class="bg-[#2a2a3a]">Absent</option>
                                     </select>
                                 </td>
-                                <td class="p-3 md:p-4 border-r border-white/10">
-                                    <input type="time" name="time_${student.id}" class="glass-input w-full p-2 rounded-lg bg-[#2a2a3a] text-white/90 border border-white/10" value="${new Date().toTimeString().slice(0,5)}" required>
+                                <td class="p-4 md:p-5">
+                                    <div class="relative">
+                                        <input type="time" name="time_${student.id}" class="glass-input w-full pl-10 pr-4 py-3 rounded-xl bg-[#2a2a3a] text-white/90 border border-white/10 transition-all duration-300 hover:border-white/20 focus:border-white/30" value="${new Date().toTimeString().slice(0,5)}" required>
+                                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
                                 </td>
                             `;
                             studentList.appendChild(row);

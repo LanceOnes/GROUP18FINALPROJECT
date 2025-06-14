@@ -7,6 +7,7 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=10, choices=[('teacher', 'Teacher'), ('student', 'Student')])
     gender = models.CharField(max_length=10)
     contact_number = models.CharField(max_length=15)
+    id_number = models.CharField(max_length=20, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

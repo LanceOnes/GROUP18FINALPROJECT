@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="content-wrapper transition-all duration-300 ml-16" :class="{'ml-64': sidebarOpen, 'ml-16': !sidebarOpen}">
     <!-- Page Header -->
     <div class="bg-white shadow rounded-lg">
         <div class="px-6 py-5">

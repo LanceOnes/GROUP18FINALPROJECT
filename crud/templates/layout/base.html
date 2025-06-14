@@ -248,33 +248,12 @@
 
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <div class="min-h-screen">
-        {% if not hide_sidebar %}
-            {% include 'include/sidebar.html' %}
-        {% endif %}
-
-        <!-- Content Wrapper -->
-        <div class="transition-all duration-300"
-             :class="{
-                 'ml-64': sidebarOpen,
-                 'ml-16': !sidebarOpen
-             }">
-            <!-- Content -->
-            <main class="p-4 md:p-8">
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="mb-4 p-4 rounded-md toast-message {% if message.tags == 'success' %}bg-green-500/20 border-green-500/30{% elif message.tags == 'error' %}bg-red-500/20 border-red-500/30{% else %}bg-blue-500/20 border-blue-500/30{% endif %}"
-                             x-data="{ show: true }"
-                             x-show="show"
-                             x-init="setTimeout(() => show = false, 5000)">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                {% block content %}{% endblock %}
-            </main>
-        </div>
+<body class="bg-[#1a1b26] min-h-screen">
+    {% block sidebar %}
+        {% include 'include/sidebar.html' %}
+    {% endblock %}
+    <div class="content-wrapper transition-all duration-300 ml-10" :class="{'ml-16': sidebarOpen, 'ml-10': !sidebarOpen}">
+        {% block content %}{% endblock %}
     </div>
     
     <!-- Custom JavaScript -->
