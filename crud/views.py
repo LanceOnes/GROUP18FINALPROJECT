@@ -17,31 +17,16 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('teacher_dashboard')
     
+    form = LoginForm()
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        
-        user = authenticate(username=username, password=password)
-        if user is not None:
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data['user']
             login(request, user)
-            if user.is_staff:  # For teachers
-                messages.success(request, f'Login successful! Welcome back, {user.first_name}!')
-                return redirect('teacher_dashboard')
-            else:
-                return redirect('student_dashboard')
-        else:
-            messages.error(request, 'Invalid username or password.')
+            messages.success(request, f'Welcome back, {user.get_full_name() or user.username}! 👋')
+            return redirect('teacher_dashboard')
     
-    return render(request, 'layout/login.html', {})
-
-def logout_view(request):
-    if request.GET.get('cancel'):
-        return redirect('teacher_dashboard')
-    
-    if request.user.is_staff:  # Store the message before logout
-        messages.success(request, 'Logged out successfully!')
-    logout(request)
-    return redirect('login')
+    return render(request, 'layout/login.html', {'form': form})
 
 def signup_view(request):
     if request.method == 'POST':
@@ -111,7 +96,7 @@ def signup_view(request):
                 room=room  
             )
             
-            messages.success(request, 'Account created successfully! Please login to continue.')
+            messages.success(request, '🎉 Account created successfully! Please log in to continue.')
             return redirect('login')
             
         except Exception as e:
@@ -133,33 +118,33 @@ def signup_view(request):
     
     return render(request, 'layout/signup.html', {})
 
+def logout_view(request):
+    if request.GET.get('cancel'):
+        return redirect('teacher_dashboard')
+    username = request.user.get_full_name() or request.user.username
+    logout(request)
+    messages.info(request, f'👋 See you later, {username}! You have been logged out.')
+    return redirect('login')
+
 @login_required
 def take_attendance(request):
-    print("DEBUG: Starting take_attendance view")  # Debug line
     if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
-        print(f"DEBUG: Access denied. User role: {getattr(request.user.userprofile, 'role', 'No role')}")  # Debug line
         messages.error(request, 'Access denied. Teacher access only.')
         return redirect('login')
 
-    
+    # Get teacher's classes with subject information
     teacher_classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
-    print(f"DEBUG: Found {teacher_classes.count()} classes for teacher")  # Debug line
     
-   
+    # Get selected class and enrollments if any
     selected_class = request.POST.get('class') or request.GET.get('class')
     enrollments = []
 
     if selected_class:
         try:
-            
             class_obj = teacher_classes.get(id=selected_class)
-            print(f"DEBUG: Selected class: {class_obj}")  # Debug line
-            # Get all enrollments for the class
             enrollments = ClassEnrollment.objects.filter(class_instance=class_obj).select_related('student__user')
-            print(f"DEBUG: Found {enrollments.count()} enrollments")  # Debug line
 
             if request.method == 'POST':
-                print("DEBUG: Processing POST request")  # Debug line
                 date = request.POST.get('date')
                 if not date:
                     messages.error(request, 'Date is required')
@@ -168,17 +153,12 @@ def take_attendance(request):
                 success_count = 0
                 error_count = 0
                 
-                # Process each student's attendance
                 for enrollment in enrollments:
                     student_id = enrollment.student.id
                     status = request.POST.get(f'status_{student_id}')
                     time_in = request.POST.get(f'time_{student_id}')
-                    
-                    print(f"DEBUG: Processing attendance for student {student_id}")  # Debug line
-                    print(f"DEBUG: Status: {status}, Time: {time_in}")  # Debug line
 
                     try:
-                        # Create or update attendance record
                         attendance, created = Attendance.objects.update_or_create(
                             student=enrollment.student,
                             class_instance=class_obj,
@@ -188,11 +168,9 @@ def take_attendance(request):
                                 'time_in': time_in
                             }
                         )
-                        print(f"DEBUG: Attendance {'created' if created else 'updated'} successfully")  # Debug line
                         success_count += 1
                     except Exception as e:
                         error_count += 1
-                        print(f"DEBUG: Error saving attendance: {str(e)}")  # Debug line
                         messages.error(request, f'Error recording attendance for {enrollment.student.user.get_full_name()}: {str(e)}')
 
                 if success_count > 0:
@@ -200,25 +178,20 @@ def take_attendance(request):
                 if error_count > 0:
                     messages.warning(request, f'Failed to record attendance for {error_count} student(s).')
                 
-                # Redirect to dashboard after submission
                 return redirect('teacher_dashboard')
 
         except Class.DoesNotExist:
-            print("DEBUG: Invalid class selected")  # Debug line
             messages.error(request, 'Invalid class selected.')
             return redirect('take_attendance')
         except Exception as e:
-            print(f"DEBUG: Error: {str(e)}")  # Debug line
             messages.error(request, f'Error recording attendance: {str(e)}')
 
-    context = {
+    return render(request, 'teachers/take_attendance.html', {
         'classes': teacher_classes,
         'selected_class': selected_class,
         'enrollments': enrollments,
         'page_title': 'Take Attendance'
-    }
-
-    return render(request, 'teachers/take_attendance.html', context)
+    })
 
 @login_required
 def teacher_dashboard(request):
@@ -438,7 +411,7 @@ def student_list(request):
     if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
         messages.error(request, 'Access denied. Teacher access only.')
         return redirect('login')
-
+    
     # Get teacher's classes
     teacher_classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
     
@@ -741,7 +714,8 @@ def delete_student(request, student_id):
     except Exception as e:
         messages.error(request, f'Error deleting student: {str(e)}')
     
-    return redirect('teacher_dashboard')
+    # Redirect back to student list with any existing filters
+    return redirect(request.META.get('HTTP_REFERER', 'student_list'))
 
 @login_required
 def teacher_class_detail(request, class_id):
@@ -777,7 +751,8 @@ def get_students(request, class_id):
         students = [{
             'id': enrollment.student.id,
             'name': enrollment.student.user.get_full_name(),
-            'email': enrollment.student.user.email
+            'email': enrollment.student.user.email,
+            'id_number': enrollment.student.id_number or 'N/A'
         } for enrollment in enrollments]
         
         return JsonResponse(students, safe=False)

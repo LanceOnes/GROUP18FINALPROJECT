@@ -47,7 +47,9 @@
                             </div>
                             <div>
                                 <div class="text-sm md:text-base font-medium text-white">{{ student.user.get_full_name }}</div>
+                                {% if student.id_number %}
                                 <div class="text-xs md:text-sm text-white/60">ID: {{ student.id_number }}</div>
+                                {% endif %}
                             </div>
                         </div>
                     </td>

@@ -83,6 +83,7 @@
                 <thead>
                     <tr class="border-b border-white/10 bg-white/5">
                         <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Student</th>
+                        <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">ID Number</th>
                         <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Status</th>
                         <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Time</th>
                     </tr>
@@ -122,10 +123,7 @@
     // Update current date and time
     function updateDateTime() {
         const now = new Date();
-        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const timeOptions = { hour: '2-digit', minute: '2-digit' };
-        
-        document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', dateOptions);
         document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', timeOptions);
     }
     
@@ -141,13 +139,23 @@
         document.getElementById('class-id-input').value = classId;
         
         if (classId) {
+            // Show loading state
+            const studentList = document.getElementById('student-list');
+            studentList.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-white/70">Loading students...</td></tr>';
+            
+            // Make the AJAX request
             fetch(`/get-students/${classId}/`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(students => {
-                    const studentList = document.getElementById('student-list');
+                    console.log('Received students:', students); // Debug log
                     studentList.innerHTML = '';
                     
-                    if (students.length > 0) {
+                    if (students && students.length > 0) {
                         students.forEach(student => {
                             const row = document.createElement('tr');
                             row.className = 'hover:bg-white/5 transition-colors duration-200';
@@ -162,6 +170,9 @@
                                             <div class="text-xs md:text-sm text-white/60">${student.email}</div>
                                         </div>
                                     </div>
+                                </td>
+                                <td class="p-4 md:p-5">
+                                    <div class="text-sm md:text-base font-medium text-white">${student.id_number}</div>
                                 </td>
                                 <td class="p-4 md:p-5">
                                     <select name="status_${student.id}" class="glass-select w-full p-3 rounded-xl bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a] border border-white/10 transition-all duration-300 hover:border-white/20 focus:border-white/30" required>
@@ -191,6 +202,13 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    studentList.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="p-4 text-center text-red-400">
+                                Error loading students. Please try again.
+                            </td>
+                        </tr>
+                    `;
                     document.getElementById('attendance-form').style.display = 'none';
                     document.getElementById('no-students-message').style.display = 'block';
                 });

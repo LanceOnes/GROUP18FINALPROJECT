@@ -8,11 +8,11 @@
 
 <div class="pt-20 sm:ml-10">
     <div class="max-w-4xl mx-auto px-4">
-        <!-- Header -->
+    <!-- Header -->
         <div class="glass-container p-5 mb-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-white">Add New Student</h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-white">Add New Student</h1>
                     <p class="text-sm md:text-base text-white/70">Enter the student's information below</p>
                 </div>
                 <a href="{% url 'student_list' %}" class="glass-button px-4 py-2 rounded-xl font-medium hover:bg-white/20 flex items-center gap-2 text-white">
@@ -34,22 +34,22 @@
                     <h2 class="text-lg font-semibold text-white">Student Information</h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
+                <div>
                             <label class="block text-white/90 text-sm font-medium mb-1.5" for="first_name">First Name</label>
                             <input class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors" 
                                    id="first_name" name="first_name" type="text" value="{{ form_data.first_name }}" required>
-                        </div>
-                        <div>
+                </div>
+                <div>
                             <label class="block text-white/90 text-sm font-medium mb-1.5" for="last_name">Last Name</label>
                             <input class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors" 
                                    id="last_name" name="last_name" type="text" value="{{ form_data.last_name }}" required>
-                        </div>
-                        <div>
+            </div>
+                <div>
                             <label class="block text-white/90 text-sm font-medium mb-1.5" for="username">Username</label>
                             <input class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors" 
                                    id="username" name="username" type="text" value="{{ form_data.username }}" required>
-                        </div>
-                        <div>
+                </div>
+                <div>
                             <label class="block text-white/90 text-sm font-medium mb-1.5" for="email">Email</label>
                             <input class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors" 
                                    id="email" name="email" type="email" value="{{ form_data.email }}" required>
@@ -59,23 +59,23 @@
                             <label class="block text-white/90 text-sm font-medium mb-1.5" for="contact_number">Contact Number</label>
                             <input class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors" 
                                    id="contact_number" name="contact_number" type="tel" value="{{ form_data.contact_number }}" required>
-                        </div>
+                </div>
 
                         <div>
                             <label class="block text-white/90 text-sm font-medium mb-1.5" for="id_number">Student ID Number</label>
                             <input class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors" 
                                    id="id_number" name="id_number" type="text" value="{{ form_data.id_number }}" >
-                        </div>
-                        <div>
+            </div>
+                <div>
                             <label class="block text-white/90 text-sm font-medium mb-1.5" for="gender">Gender</label>
                             <select class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors [&>option]:bg-[#2a2a3a]" 
                                     id="gender" name="gender" required>
-                                <option value="">Select Gender</option>
-                                <option value="Male" {% if form_data.gender == 'Male' %}selected{% endif %}>Male</option>
-                                <option value="Female" {% if form_data.gender == 'Female' %}selected{% endif %}>Female</option>
-                                <option value="Other" {% if form_data.gender == 'Other' %}selected{% endif %}>Other</option>
-                            </select>
-                        </div>
+                        <option value="">Select Gender</option>
+                        <option value="Male" {% if form_data.gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if form_data.gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if form_data.gender == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
                         
                     </div>
                 </div>
@@ -87,15 +87,15 @@
                         <label class="block text-white/90 text-sm font-medium mb-1.5" for="classes">Assign to Class</label>
                         <select class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors [&>option]:bg-[#2a2a3a]" 
                                 id="classes" name="classes" required>
-                            <option value="">Select Class</option>
-                            {% for class in classes %}
+                    <option value="">Select Class</option>
+                    {% for class in classes %}
                             <option value="{{ class.id }}" {% if form_data.classes == class.id %}selected{% endif %}>
                                 {{ class.subject.name }} - {{ class.section }} ({{ class.schedule }})
                             </option>
-                            {% endfor %}
-                        </select>
+                    {% endfor %}
+                </select>
                     </div>
-                </div>
+            </div>
 
                 <!-- Form Actions -->
                 <div class="flex justify-center gap-4 pt-4">
@@ -103,8 +103,8 @@
                     <button type="submit" class="glass-button px-5 py-2 rounded-xl font-medium bg-white/10 hover:bg-white/20 text-white flex items-center gap-2">
                         Add Student
                     </button>
-                </div>
-            </form>
+            </div>
+        </form>
         </div>
     </div>
 </div>

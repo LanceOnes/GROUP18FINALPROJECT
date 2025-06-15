@@ -25,7 +25,7 @@
                     <option value="">All Classes</option>
                     {% for class in classes %}
                     <option value="{{ class.id }}" {% if class.id|stringformat:"s" == current_class %}selected{% endif %}>
-                        {{ class.subject.code }} - {{ class.section }}
+                        {{ class.subject.name }} - {{ class.section }}
                     </option>
                     {% endfor %}
                 </select>

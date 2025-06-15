@@ -1,161 +1,212 @@
-{% extends 'layout/base.html' %}
 {% load static %}
-
-{% block sidebar %}{% endblock %}
-
-{% block content %}
-<style>
-    .glass-container {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        border-radius: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        transform: translateY(0);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    .glass-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.1),
-            transparent
-        );
-        transition: 0.5s;
-    }
-    .glass-container:hover::before {
-        left: 100%;
-    }
-    .form-input {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        transition: all 0.3s ease;
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        margin-top: 0.25rem;
-        backdrop-filter: blur(5px);
-    }
-    .form-input::placeholder {
-        color: rgba(255, 255, 255, 0.6);
-    }
-    .form-input:focus {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.5);
-        outline: none;
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-        transform: translateY(-2px);
-    }
-    .section-title {
-        color: white;
-        font-size: 1.125rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        position: relative;
-        padding-left: 1rem;
-    }
-    .section-title::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 3px;
-        height: 1.25rem;
-        background: rgba(255, 255, 255, 0.5);
-        border-radius: 2px;
-    }
-    .form-label {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.875rem;
-        font-weight: 500;
-        margin-bottom: 0.25rem;
-        display: block;
-    }
-    .submit-btn {
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-        width: 100%;
-        padding: 0.75rem;
-        border-radius: 0.75rem;
-        color: white;
-        font-weight: 600;
-        margin-top: 1.5rem;
-        position: relative;
-        overflow: hidden;
-        backdrop-filter: blur(5px);
-    }
-    .submit-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-    .submit-btn:active {
-        transform: translateY(0);
-    }
-    .error-message {
-        background: rgba(239, 68, 68, 0.15);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        color: white;
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        margin-top: 0.75rem;
-        backdrop-filter: blur(5px);
-        animation: shake 0.5s ease-in-out;
-    }
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-    .logo-container {
-        position: relative;
-        width: 60px;
-        height: 60px;
-        margin: 0 auto;
-        animation: float 6s ease-in-out infinite;
-    }
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-</style>
-
-<div class="min-h-screen flex items-center justify-center p-4">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - ScholarTrack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 1rem;
+        }
+        .glass-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            padding: 1.5rem;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        .glass-container:hover::before {
+            left: 100%;
+        }
+        .form-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border-radius: 0.5rem;
+            margin-top: 0.25rem;
+            backdrop-filter: blur(5px);
+            font-size: 0.875rem;
+        }
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .form-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            outline: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        .section-title {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            position: relative;
+            padding-left: 0.75rem;
+        }
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 2px;
+        }
+        .form-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.125rem;
+            display: block;
+        }
+        .submit-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 0.625rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 600;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+        .submit-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .logo-container {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .signup-message {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            background: rgba(34, 197, 94, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 300px;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center py-8 px-4">
+    <!-- Success Message -->
     {% if messages %}
         {% for message in messages %}
-            <div class="error-message mb-4 w-96">
+            {% if message.tags == 'success' %}
+            <div class="signup-message"
+                 x-data="{ show: false }" 
+                 x-init="() => { 
+                     $nextTick(() => { show = true }); 
+                     setTimeout(() => { show = false }, 5000);
+                 }" 
+                 x-show="show"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform -translate-y-4"
+                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                 x-transition:leave-end="opacity-0 transform -translate-y-4">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 {{ message }}
             </div>
+            {% endif %}
         {% endfor %}
     {% endif %}
-    
-    <div class="glass-container max-w-3xl w-full p-6">
+
+    <div class="glass-container max-w-3xl w-full">
         <div class="text-center mb-6">
-            <h1 class="text-2xl font-bold text-white mb-2">ScholarTrack</h1>
-            <div class="logo-container mb-4">
-                <img src="{% static 'images/finallogo.png' %}" alt="logo" class="w-16 h-16 transition-all duration-300">
-            </div>
-            <p class="text-white/80 text-base">Create Your Teacher Account</p>
+            <img src="{% static 'images/finallogo.png' %}" alt="ScholarTrack Logo" class="mx-auto w-16 h-16">
+            <h2 class="mt-4 text-2xl font-bold text-white">Create Your Account</h2>
+            <p class="mt-1 text-sm text-white/70">Join ScholarTrack to manage your classes</p>
         </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-message mb-4 text-center">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
         <form method="POST" class="space-y-6">
             {% csrf_token %}
             
             <!-- Teacher Information -->
-            <div class="space-y-4">
+            <div>
                 <h2 class="section-title">Teacher Information</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                         <label class="form-label" for="first_name">First Name</label>
                         <input type="text" id="first_name" name="first_name" required value="{{ form_data.first_name|default:'' }}"
@@ -166,16 +217,20 @@
                         <input type="text" id="last_name" name="last_name" required value="{{ form_data.last_name|default:'' }}"
                             class="form-input" placeholder="Enter last name">
                     </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                     <div>
                         <label class="form-label" for="email">Email Address</label>
                         <input type="email" id="email" name="email" required value="{{ form_data.email|default:'' }}"
-                            class="form-input" placeholder="Enter email address">
+                            class="form-input" placeholder="Enter email">
                     </div>
                     <div>
                         <label class="form-label" for="contact_number">Contact Number</label>
                         <input type="tel" id="contact_number" name="contact_number" required value="{{ form_data.contact_number|default:'' }}"
                             class="form-input" placeholder="Enter contact number">
                     </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                     <div>
                         <label class="form-label" for="username">Username</label>
                         <input type="text" id="username" name="username" required value="{{ form_data.username|default:'' }}"
@@ -186,59 +241,42 @@
                         <input type="password" id="password" name="password" required
                             class="form-input" placeholder="Create password">
                     </div>
-                    <div>
-                        <label class="form-label" for="confirm_password">Confirm Password</label>
-                        <input type="password" id="confirm_password" name="confirm_password" required
-                            class="form-input" placeholder="Confirm password">
-                    </div>
                 </div>
             </div>
 
             <!-- Class Information -->
-            <div class="space-y-4">
+            <div>
                 <h2 class="section-title">Class Information</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label class="form-label" for="subject_code">Subject Code</label>
                         <input type="text" id="subject_code" name="subject_code" required value="{{ form_data.subject_code|default:'' }}"
-                            class="form-input" placeholder="e.g. CS101">
+                            class="form-input" placeholder="e.g. 2407252">
                     </div>
                     <div>
                         <label class="form-label" for="subject_name">Subject Name</label>
                         <input type="text" id="subject_name" name="subject_name" required value="{{ form_data.subject_name|default:'' }}"
-                            class="form-input" placeholder="e.g. Introduction to Computing">
+                            class="form-input" placeholder="e.g. Mathematics">
                     </div>
                     <div>
                         <label class="form-label" for="section">Section</label>
                         <input type="text" id="section" name="section" required value="{{ form_data.section|default:'' }}"
                             class="form-input" placeholder="e.g. A">
                     </div>
-                    <div>
-                        <label class="form-label" for="schedule">Schedule</label>
-                        <input type="text" id="schedule" name="schedule" required value="{{ form_data.schedule|default:'' }}"
-                            class="form-input" placeholder="e.g. MWF 9:00-10:30 AM">
-                    </div>
-                    <div>
-                        <label class="form-label" for="room">Room</label>
-                        <input type="text" id="room" name="room" required value="{{ form_data.room|default:'' }}"
-                            class="form-input" placeholder="e.g. Room 101">
-                    </div>
                 </div>
             </div>
 
-            <button type="submit" class="submit-btn">
-                Create Account & Class
+            <button type="submit" class="submit-btn hover:bg-white/20">
+                Create Account
             </button>
 
-            <div class="text-center mt-4">
-                <p class="text-white/80 text-sm">
-                    Already have an account?
-                    <a href="{% url 'login' %}" class="text-white hover:text-white/90 font-medium underline ml-1 transition-colors duration-300">
-                        Sign in
-                    </a>
+            <div class="text-center mt-3">
+                <p class="text-sm text-white/70">
+                    Already have an account? 
+                    <a href="{% url 'login' %}" class="text-white hover:text-white/90">Sign in</a>
                 </p>
             </div>
         </form>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>
