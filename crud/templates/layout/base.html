@@ -94,7 +94,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             overflow-x: auto;
             width: 100%;
-            display: block;
         }
 
         .glass-table th {
@@ -110,7 +109,10 @@
         .glass-table td {
             color: white;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            white-space: nowrap;
+        }
+
+        .glass-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .glass-select {
@@ -295,6 +297,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body class="">
+    {% include 'include/toast.html' %}
     {% include 'include/sidebar.html' %}
     <div class="content-wrapper transition-all duration-300 ml-10" :class="{'ml-16': sidebarOpen, 'ml-10': !sidebarOpen}">
         {% block content %}{% endblock %}

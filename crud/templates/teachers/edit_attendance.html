@@ -2,18 +2,18 @@
 
 {% block content %}
 <div class="space-y-6">
-    <!-- Header -->
+   
     <div class="glass-container p-6">
         <h1 class="text-3xl font-bold text-white/90">Edit Attendance</h1>
-        <p class="text-white/70">Edit attendance record for {{ attendance.student.user.get_full_name }}</p>
+        <p class="text-white/70">Edit attendance record for {{ attendance.student.get_full_name }}</p>
     </div>
 
-    <!-- Edit Form -->
+  
     <form method="POST" class="glass-container p-6 space-y-6">
         {% csrf_token %}
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Status -->
+          
             <div>
                 <label for="status" class="block text-sm font-medium text-white/90 mb-2">Status</label>
                 <select id="status" name="status" class="glass-select w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a]" required>
@@ -23,7 +23,7 @@
                 </select>
             </div>
 
-            <!-- Time -->
+        
             <div>
                 <label for="time_in" class="block text-sm font-medium text-white/90 mb-2">Time</label>
                 <input type="time" id="time_in" name="time_in" value="{{ attendance.time_in|time:'H:i' }}"

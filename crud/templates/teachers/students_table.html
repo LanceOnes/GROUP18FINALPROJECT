@@ -19,48 +19,30 @@
 </div>
 {% else %}
 <!-- Students Table -->
-<div class="glass-container p-6 md:p-8">
-    <div class="overflow-hidden rounded-xl border border-white/10">
-        <table class="w-full text-white text-left">
-            <thead>
-                <tr class="border-b border-white/10 bg-white/5">
-                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">#</th>
-                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Name</th>
-                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Email</th>
-                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Gender</th>
-                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Username</th>
-                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Contact No.</th>
-                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90">Class</th>
-                    <th class="p-4 md:p-5 text-sm md:text-base font-medium text-white/90 text-right">Actions</th>
+<div class="glass-container rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-white/10">
+            <thead class="bg-[#2B2B3F]">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Student ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Contact</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Gender</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Class</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-white/10">
                 {% for student in students %}
-                <tr class="hover:bg-white/5 transition-colors duration-200">
-                    <td class="p-4 md:p-5 text-white/90">{{ forloop.counter }}</td>
-                    <td class="p-4 md:p-5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                                <span class="text-sm font-medium text-white">
-                                    {{ student.user.get_full_name|make_list|first }}
-                                </span>
-                            </div>
-                            <div>
-                                <div class="text-sm md:text-base font-medium text-white">{{ student.user.get_full_name }}</div>
-                                {% if student.id_number %}
-                                <div class="text-xs md:text-sm text-white/60">ID: {{ student.id_number }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </td>
-                    <td class="p-4 md:p-5 text-white/80">{{ student.user.email }}</td>
-                    <td class="p-4 md:p-5">
-                        <span class="glass-button px-3 py-1 rounded-xl text-sm">{{ student.gender }}</span>
-                    </td>
-                    <td class="p-4 md:p-5 text-white/80">{{ student.user.username }}</td>
-                    <td class="p-4 md:p-5 text-white/80">{{ student.contact_number }}</td>
-                    <td class="p-4 md:p-5">
-                        {% for enrollment in student.enrolled_classes.all %}
+                <tr class="hover:bg-white/5">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">{{ student.student_id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">{{ student.get_full_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">{{ student.email }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">{{ student.contact_number }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">{{ student.gender }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
+                        {% for enrollment in student.enrollments.all %}
                         <div class="glass-button px-3 py-1 rounded-xl text-sm inline-flex items-center gap-2 mb-1">
                             <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -71,20 +53,18 @@
                         <span class="text-sm text-white/50">Not assigned</span>
                         {% endfor %}
                     </td>
-                    <td class="p-4 md:p-5">
-                        <div class="flex items-center justify-end gap-2">
-                            <a href="{% url 'edit_student' student.id %}" class="glass-button p-2 rounded-xl hover:bg-white/20 transition-colors duration-200">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                            </a>
-                            <button onclick="confirmDelete('{% url 'delete_student' student.id %}')" class="glass-button p-2 rounded-xl hover:bg-red-500/20 transition-colors duration-200">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'edit_student' student.id %}" class="text-indigo-400 hover:text-indigo-300">Edit</a>
+                            <a href="{% url 'delete_student' student.id %}" 
+                               class="text-red-400 hover:text-red-300"
+                               onclick="return confirm('Are you sure you want to delete this student?')">Delete</a>
                         </div>
                     </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-white">No students found.</td>
                 </tr>
                 {% endfor %}
             </tbody>

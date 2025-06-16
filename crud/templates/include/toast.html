@@ -1,0 +1,46 @@
+{% if messages %}
+<div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center gap-2 w-full max-w-lg">
+    {% for message in messages %}
+    <div id="toast-{{ forloop.counter }}" 
+         class="transform transition-all duration-300 ease-in-out translate-y-0 opacity-100 
+                bg-[#1e1e2e] backdrop-blur-md border border-white/10 rounded-xl shadow-lg w-auto min-w-[300px]">
+        <div class="flex items-center gap-2 px-6 py-3">
+            {% if message.tags == 'success' %}
+            <span class="text-lg">ℹ️</span>
+            {% elif message.tags == 'error' %}
+            <span class="text-lg">ℹ️</span>
+            {% elif message.tags == 'warning' %}
+            <span class="text-lg">ℹ️</span>
+            {% else %}
+            <span class="text-lg">ℹ️</span>
+            {% endif %}
+            <p class="text-sm text-white/90">{{ message }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toasts = document.querySelectorAll('[id^="toast-"]');
+    toasts.forEach((toast, index) => {
+        // Slide in from top
+        toast.style.transform = 'translateY(-100%)';
+        toast.style.opacity = '0';
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateY(0)';
+            toast.style.opacity = '1';
+        });
+        
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+            toast.style.transform = 'translateY(-100%)';
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 4000 + (index * 500));
+    });
+});
+</script>
+{% endif %} 

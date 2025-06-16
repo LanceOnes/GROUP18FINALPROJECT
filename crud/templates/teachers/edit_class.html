@@ -2,61 +2,63 @@
 {% load static %}
 
 {% block content %}
-<div class="content-wrapper transition-all duration-300 ml-16" :class="{'ml-64': sidebarOpen, 'ml-16': !sidebarOpen}">
-    <!-- Header -->
-    <div class="glass-container p-6">
-        <h1 class="text-3xl font-bold text-white/90">Edit Class</h1>
-        <p class="mt-2 text-white/70">Update class and subject information</p>
+{% include 'include/sidebar.html' %}
+
+<div class="pt-20 sm:ml-60 px-10">
+    <!-- Header Section -->
+    <div class="glass-container p-4 md:p-6 mb-4 md:mb-6">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-white">Edit Class</h1>
+                <p class="text-base text-white/70">Update class and subject information</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Edit Form -->
-    <div class="glass-container p-6">
+    <!-- Edit Form Section -->
+    <div class="glass-container p-4 md:p-6">
         <form method="POST" class="space-y-6">
             {% csrf_token %}
+            
+            <!-- Subject Information -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="subject_code" class="block text-sm font-medium text-white/90 mb-2">Subject Code</label>
-                    <input type="text" id="subject_code" name="subject_code" required
-                        value="{{ class.subject.code }}"
-                        class="glass-input w-full rounded-lg"
-                        placeholder="e.g. CS101">
+                    <input type="text" id="subject_code" name="subject_code" value="{{ class.subject.code }}"
+                        class="glass-input w-full rounded-lg bg-[#2a2a3a] text-white/90 p-2.5" required>
                 </div>
                 <div>
                     <label for="subject_name" class="block text-sm font-medium text-white/90 mb-2">Subject Name</label>
-                    <input type="text" id="subject_name" name="subject_name" required
-                        value="{{ class.subject.name }}"
-                        class="glass-input w-full rounded-lg"
-                        placeholder="e.g. Introduction to Computer Science">
+                    <input type="text" id="subject_name" name="subject_name" value="{{ class.subject.name }}"
+                        class="glass-input w-full rounded-lg bg-[#2a2a3a] text-white/90 p-2.5" required>
                 </div>
+            </div>
+
+            <!-- Class Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="section" class="block text-sm font-medium text-white/90 mb-2">Section</label>
-                    <input type="text" id="section" name="section" required
-                        value="{{ class.section }}"
-                        class="glass-input w-full rounded-lg"
-                        placeholder="e.g. A">
-                </div>
-                <div>
-                    <label for="schedule" class="block text-sm font-medium text-white/90 mb-2">Schedule</label>
-                    <input type="text" id="schedule" name="schedule" required
-                        value="{{ class.schedule }}"
-                        class="glass-input w-full rounded-lg"
-                        placeholder="e.g. MWF 9:00-10:30 AM">
+                    <input type="text" id="section" name="section" value="{{ class.section }}"
+                        class="glass-input w-full rounded-lg bg-[#2a2a3a] text-white/90 p-2.5" required>
                 </div>
                 <div>
                     <label for="room" class="block text-sm font-medium text-white/90 mb-2">Room</label>
-                    <input type="text" id="room" name="room" required
-                        value="{{ class.room }}"
-                        class="glass-input w-full rounded-lg"
-                        placeholder="e.g. Room 101">
+                    <input type="text" id="room" name="room" value="{{ class.room }}"
+                        class="glass-input w-full rounded-lg bg-[#2a2a3a] text-white/90 p-2.5" required>
                 </div>
             </div>
-            <div class="flex justify-end space-x-4">
-                <a href="{% url 'add_class' %}"
-                    class="glass-button px-6 py-2.5 rounded-lg font-medium hover:bg-white/10 text-white/90">
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-4">
+                <a href="{% url 'add_class' %}" class="glass-button px-4 py-2 rounded-lg font-medium hover:bg-white/10 text-white/90">
                     Cancel
                 </a>
-                <button type="submit"
-                    class="glass-button px-6 py-2.5 rounded-lg font-medium bg-white/10 hover:bg-white/20 text-white/90">
+                <button type="submit" class="glass-button px-6 py-2 rounded-lg font-medium bg-[#6366F1] hover:bg-[#5558E5] text-white">
                     Save Changes
                 </button>
             </div>

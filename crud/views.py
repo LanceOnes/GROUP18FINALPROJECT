@@ -7,11 +7,13 @@ from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from datetime import time
 from .forms import LoginForm, SignUpForm
-from .models import UserProfile, Attendance, Subject, Class, ClassEnrollment
+from .models import UserProfile, Attendance, Subject, Class, ClassEnrollment, Student
 import csv
 import uuid
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
+from django.db.utils import IntegrityError
+from django.db import transaction
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -22,101 +24,88 @@ def login_view(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             user = form.cleaned_data['user']
+            if not hasattr(user, 'userprofile'):
+                messages.error(request, 'No teacher profile found for this account.')
+                return render(request, 'layout/login.html', {'form': form})
+            if user.userprofile.role != 'teacher':
+                messages.error(request, 'Access denied. Teacher access only.')
+                return render(request, 'layout/login.html', {'form': form})
+            
             login(request, user)
-            messages.success(request, f'Welcome back, {user.get_full_name() or user.username}! 👋')
             return redirect('teacher_dashboard')
     
     return render(request, 'layout/login.html', {'form': form})
 
 def signup_view(request):
     if request.method == 'POST':
-        try:
-            # Get form data
-            username = request.POST.get('username')
-            email = request.POST.get('email')
-            password = request.POST.get('password')
-            confirm_password = request.POST.get('confirm_password')
-            first_name = request.POST.get('first_name')
-            last_name = request.POST.get('last_name')
-            contact_number = request.POST.get('contact_number')
-            subject_code = request.POST.get('subject_code')
-            subject_name = request.POST.get('subject_name')
-            section = request.POST.get('section')
-            schedule = request.POST.get('schedule')
-            room = request.POST.get('room', 'Default Room')  # Adding room field
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                # Start a database transaction
+                with transaction.atomic():
+                    username = form.cleaned_data['username']
+                    password = form.cleaned_data['password']
+                    email = form.cleaned_data['email']
+                    first_name = form.cleaned_data['first_name']
+                    last_name = form.cleaned_data['last_name']
+                    contact_number = form.cleaned_data['contact_number']
+                    subject_code = form.cleaned_data['subject_code'].strip()  # Clean whitespace
+                    subject_name = form.cleaned_data['subject_name']
+                    section = form.cleaned_data['section']
+                    room = form.cleaned_data['room']
 
-            
-            if password != confirm_password:
-                messages.error(request, 'Passwords do not match.')
-                return render(request, 'layout/signup.html', {'form_data': request.POST})
-            
-            
-            if User.objects.filter(username=username).exists():
-                messages.error(request, 'Username already exists. Please choose a different username.')
-                return render(request, 'layout/signup.html', {'form_data': request.POST})
-
-           
-            if User.objects.filter(email=email).exists():
-                messages.error(request, 'Email already exists. Please use a different email address.')
-                return render(request, 'layout/signup.html', {'form_data': request.POST})
-
-           
-            if Subject.objects.filter(code=subject_code).exists():
-                messages.error(request, 'Subject code already exists. Please use a different code.')
-                return render(request, 'layout/signup.html', {'form_data': request.POST})
-            
-         
-            user = User.objects.create_user(
-                username=username,
-                password=password,
-                email=email,
-                first_name=first_name,
-                last_name=last_name
-            )
-            
-           
-            UserProfile.objects.create(
-                user=user,
-                role='teacher',
-                gender='',  
-                contact_number=contact_number
-            )
-            
-            
-            subject = Subject.objects.create(
-                code=subject_code,
-                name=subject_name
-            )
-            
-            Class.objects.create(
-                subject=subject,
-                teacher=user.userprofile,
-                section=section,
-                schedule=schedule,
-                room=room  
-            )
-            
-            messages.success(request, '🎉 Account created successfully! Please log in to continue.')
-            return redirect('login')
-            
-        except Exception as e:
-           
-            if 'user' in locals():
-                user.delete()
-            
-            error_message = str(e)
-            if 'username' in error_message.lower():
-                messages.error(request, 'Username already exists. Please choose a different username.')
-            elif 'email' in error_message.lower():
-                messages.error(request, 'Email already exists. Please use a different email address.')
-            elif 'subject' in error_message.lower():
-                messages.error(request, 'Subject code already exists. Please use a different code.')
-            else:
-                messages.error(request, f'An error occurred: {str(e)}')
-            
-            return render(request, 'layout/signup.html', {'form_data': request.POST})
+                    # Create user
+                    user = User.objects.create_user(
+                        username=username,
+                        password=password,
+                        email=email,
+                        first_name=first_name,
+                        last_name=last_name
+                    )
+                    
+                    # Create user profile with teacher role
+                    user_profile = UserProfile.objects.create(
+                        user=user,
+                        role='teacher',
+                        gender='',  
+                        contact_number=contact_number,
+                        id_number=f"T{timezone.now().strftime('%y%m%d%H%M%S')}"  # Generate teacher ID
+                    )
+                    
+                    # Create subject
+                    subject = Subject.objects.create(
+                        code=subject_code,
+                        name=subject_name
+                    )
+                    
+                    # Create class
+                    Class.objects.create(
+                        subject=subject,
+                        teacher=user_profile,
+                        section=section,
+                        room=room
+                    )
+                    messages.success(request, '🎉 Account created successfully! Please log in to continue.')
+                    return redirect('login')
+            except IntegrityError as e:
+                # Handle database integrity errors (like duplicate entries)
+                if 'unique constraint' in str(e).lower() or 'duplicate entry' in str(e).lower():
+                    if 'username' in str(e).lower():
+                        form.add_error('username', 'Username already exists.')
+                    elif 'email' in str(e).lower():
+                        form.add_error('email', 'Email already exists.')
+                    elif 'subject' in str(e).lower() or 'code' in str(e).lower():
+                        form.add_error('subject_code', 'Subject code already exists. Please use a different code.')
+                    else:
+                        form.add_error(None, 'An error occurred. Please try again.')
+                else:
+                    form.add_error(None, 'An error occurred. Please try again.')
+            except Exception as e:
+                form.add_error(None, f'Error creating account: {str(e)}')
+    else:
+        form = SignUpForm()
     
-    return render(request, 'layout/signup.html', {})
+    return render(request, 'layout/signup.html', {'form': form})
 
 def logout_view(request):
     if request.GET.get('cancel'):
@@ -135,61 +124,61 @@ def take_attendance(request):
     # Get teacher's classes with subject information
     teacher_classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
     
-    # Get selected class and enrollments if any
+    # Get selected class and students if any
     selected_class = request.POST.get('class') or request.GET.get('class')
-    enrollments = []
+    students = []
 
     if selected_class:
         try:
             class_obj = teacher_classes.get(id=selected_class)
-            enrollments = ClassEnrollment.objects.filter(class_instance=class_obj).select_related('student__user')
+            # Get students directly from the class
+            students = Student.objects.filter(class_instance=class_obj)
 
             if request.method == 'POST':
-                date = request.POST.get('date')
-                if not date:
-                    messages.error(request, 'Date is required')
-                    return redirect('take_attendance')
-
-                success_count = 0
-                error_count = 0
+                # Get date and time from form
+                attendance_date = request.POST.get('attendance_date')
+                attendance_time = request.POST.get('attendance_time')
                 
-                for enrollment in enrollments:
-                    student_id = enrollment.student.id
-                    status = request.POST.get(f'status_{student_id}')
-                    time_in = request.POST.get(f'time_{student_id}')
-
-                    try:
-                        attendance, created = Attendance.objects.update_or_create(
-                            student=enrollment.student,
+                if not attendance_date or not attendance_time:
+                    messages.error(request, 'Date and time are required.')
+                    return redirect('take_attendance')
+                
+                try:
+                    # Convert string time to time object
+                    time_obj = timezone.datetime.strptime(attendance_time, '%H:%M:%S').time()
+                except ValueError:
+                    messages.error(request, 'Invalid time format.')
+                    return redirect('take_attendance')
+                
+                # Process attendance for each student
+                for student in students:
+                    status = request.POST.get(f'status_{student.id}')
+                    if status:
+                        # Create or update attendance record
+                        Attendance.objects.update_or_create(
+                            student=student,  # The actual student
                             class_instance=class_obj,
-                            date=date,
+                            date=attendance_date,
                             defaults={
                                 'status': status,
-                                'time_in': time_in
+                                'time_in': time_obj
                             }
                         )
-                        success_count += 1
-                    except Exception as e:
-                        error_count += 1
-                        messages.error(request, f'Error recording attendance for {enrollment.student.user.get_full_name()}: {str(e)}')
-
-                if success_count > 0:
-                    messages.success(request, f'Successfully recorded attendance for {success_count} student(s).')
-                if error_count > 0:
-                    messages.warning(request, f'Failed to record attendance for {error_count} student(s).')
                 
-                return redirect('teacher_dashboard')
+                messages.success(request, 'Attendance recorded successfully!')
+                return redirect('take_attendance')
 
         except Class.DoesNotExist:
             messages.error(request, 'Invalid class selected.')
-            return redirect('take_attendance')
+            students = []
         except Exception as e:
-            messages.error(request, f'Error recording attendance: {str(e)}')
+            messages.error(request, f'Error: {str(e)}')
+            students = []
 
     return render(request, 'teachers/take_attendance.html', {
         'classes': teacher_classes,
         'selected_class': selected_class,
-        'enrollments': enrollments,
+        'students': students,
         'page_title': 'Take Attendance'
     })
 
@@ -203,9 +192,8 @@ def teacher_dashboard(request):
     # Get teacher's classes
     teacher_classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
     
-    # Get today's date and weekday
+    # Get today's date
     today = timezone.now().date()
-    today_weekday = timezone.now().strftime('%A')[:3].upper()  # Get first 3 letters of weekday
     
     # Calculate total students (unique students across all classes)
     total_students = ClassEnrollment.objects.filter(
@@ -215,25 +203,26 @@ def teacher_dashboard(request):
     # Calculate total classes
     total_classes = teacher_classes.count()
     
-    # Get today's attendance statistics
+    # Get today's attendance records
     today_attendance = Attendance.objects.filter(
         class_instance__in=teacher_classes,
         date=today
     )
     
-    # Get all enrolled students IDs
-    enrolled_student_ids = ClassEnrollment.objects.filter(
-        class_instance__in=teacher_classes
-    ).values_list('student_id', flat=True).distinct()
-    
-    # Count present students (including those marked as 'late')
+    # Count present students
     present_today = today_attendance.filter(
-        status__in=['present', 'late']
+        status='present'
     ).values('student').distinct().count()
     
-    # Count absent students (total enrolled minus present)
-    total_enrolled = len(set(enrolled_student_ids))
-    absent_today = total_enrolled - present_today if total_enrolled > present_today else 0
+    # Count late students
+    late_today = today_attendance.filter(
+        status='late'
+    ).values('student').distinct().count()
+    
+    # Count absent students
+    absent_today = today_attendance.filter(
+        status='absent'
+    ).values('student').distinct().count()
     
     # Get class statistics
     class_stats = []
@@ -248,6 +237,7 @@ def teacher_dashboard(request):
         'total_students': total_students,
         'total_classes': total_classes,
         'present_today': present_today,
+        'late_today': late_today,
         'absent_today': absent_today,
         'class_stats': class_stats,
         'page_title': 'Teacher Dashboard'
@@ -256,11 +246,47 @@ def teacher_dashboard(request):
     return render(request, 'teachers/dashboard.html', context)
 
 @login_required
+def get_attendance_stats(request):
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
+        return JsonResponse({'error': 'Access denied'}, status=403)
+
+    # Get teacher's classes
+    teacher_classes = Class.objects.filter(teacher=request.user.userprofile)
+    
+    # Get today's date
+    today = timezone.now().date()
+    
+    # Get today's attendance records
+    today_attendance = Attendance.objects.filter(
+        class_instance__in=teacher_classes,
+        date=today
+    )
+    
+    # Count present students
+    present_today = today_attendance.filter(
+        status='present'
+    ).values('student').distinct().count()
+    
+    # Count late students
+    late_today = today_attendance.filter(
+        status='late'
+    ).values('student').distinct().count()
+    
+    # Count absent students
+    absent_today = today_attendance.filter(
+        status='absent'
+    ).values('student').distinct().count()
+    
+    return JsonResponse({
+        'present_today': present_today,
+        'late_today': late_today,
+        'absent_today': absent_today
+    })
+
+@login_required
 def manage_attendance(request):
     """View for displaying attendance records."""
-    print("DEBUG: Starting manage_attendance view")  # Debug line
     if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
-        print(f"DEBUG: Access denied. User role: {getattr(request.user.userprofile, 'role', 'No role')}")  # Debug line
         messages.error(request, 'Access denied. Teacher access only.')
         return redirect('login')
 
@@ -269,40 +295,29 @@ def manage_attendance(request):
     status_filter = request.GET.get('status')
     class_filter = request.GET.get('class')
     
-    print(f"DEBUG: Filters - Date: {date_filter}, Status: {status_filter}, Class: {class_filter}")  # Debug line
-    
     # Base queryset - filter by teacher's classes
     teacher_classes = Class.objects.filter(teacher=request.user.userprofile).values_list('id', flat=True)
-    print(f"DEBUG: Found {len(teacher_classes)} teacher classes")  # Debug line
     
     attendance_list = Attendance.objects.select_related(
-        'student__user', 
+        'student',
         'class_instance__subject'
     ).filter(class_instance__in=teacher_classes).order_by('-date', '-time_in')
-    
-    print(f"DEBUG: Initial attendance count: {attendance_list.count()}")  # Debug line
     
     # Apply filters
     if date_filter:
         attendance_list = attendance_list.filter(date=date_filter)
-        print(f"DEBUG: After date filter: {attendance_list.count()} records")  # Debug line
     if status_filter:
         attendance_list = attendance_list.filter(status=status_filter)
-        print(f"DEBUG: After status filter: {attendance_list.count()} records")  # Debug line
     if class_filter:
         attendance_list = attendance_list.filter(class_instance_id=class_filter)
-        print(f"DEBUG: After class filter: {attendance_list.count()} records")  # Debug line
     
     # Get only this teacher's classes for the filter dropdown
     classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
-    print(f"DEBUG: Classes for dropdown: {classes.count()}")  # Debug line
     
     # Pagination
     paginator = Paginator(attendance_list, 10)
     page_number = request.GET.get('page', 1)
     attendance_records = paginator.get_page(page_number)
-    
-    print(f"DEBUG: Final attendance records count: {len(attendance_records)}")  # Debug line
     
     context = {
         'page_title': 'Manage Attendance',
@@ -323,8 +338,7 @@ def add_class(request):
         subject_code = request.POST.get('subject_code')
         subject_name = request.POST.get('subject_name')
         section = request.POST.get('section')
-        schedule = request.POST.get('schedule')
-        room = request.POST.get('room', 'Default Room')  # Adding room with default value
+        room = request.POST.get('room', 'Default Room')
         
         try:
             # Get or create the subject
@@ -342,8 +356,7 @@ def add_class(request):
                     subject=subject,
                     teacher=request.user.userprofile,
                     section=section,
-                    schedule=schedule,
-                    room=room  # Adding room field
+                    room=room
                 )
                 messages.success(request, 'Class created successfully!')
             
@@ -377,7 +390,6 @@ def edit_class(request, class_id):
             
             # Update class
             class_obj.section = request.POST.get('section')
-            class_obj.schedule = request.POST.get('schedule')
             class_obj.room = request.POST.get('room')
             class_obj.save()
             
@@ -411,80 +423,56 @@ def student_list(request):
     if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
         messages.error(request, 'Access denied. Teacher access only.')
         return redirect('login')
-    
+
     # Get teacher's classes
     teacher_classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
     
-    # Get all students first to check if we have any
-    all_student_ids = ClassEnrollment.objects.filter(
-        class_instance__teacher=request.user.userprofile
-    ).values_list('student_id', flat=True)
-    total_students_count = UserProfile.objects.filter(
-        id__in=all_student_ids,
-        role='student'
-    ).count()
-
-    # Get the selected class filter
+    # Get the selected class filter and search query
     selected_class = request.GET.get('class')
     search_query = request.GET.get('search')
     
-    # Get students based on filter
+    # Base query for students - combine both direct assignments and enrollments
+    students_list = Student.objects.filter(
+        Q(class_instance__teacher=request.user.userprofile) |  # Direct assignments
+        Q(enrollments__class_instance__teacher=request.user.userprofile)  # Enrollments
+    ).select_related('class_instance', 'class_instance__subject').distinct()
+
+    # Apply filters
     if selected_class:
         try:
             # Verify the class belongs to the teacher
             class_obj = teacher_classes.get(id=selected_class)
-            # Get students enrolled in the selected class
-            student_ids = ClassEnrollment.objects.filter(
-                class_instance=class_obj
-            ).values_list('student_id', flat=True)
-            students = UserProfile.objects.filter(
-                id__in=student_ids,
-                role='student'
-            ).select_related('user')
+            students_list = students_list.filter(
+                Q(class_instance=class_obj) |  # Direct assignments
+                Q(enrollments__class_instance=class_obj)  # Enrollments
+            ).distinct()
         except Class.DoesNotExist:
             messages.error(request, 'Invalid class selected.')
-            students = UserProfile.objects.none()
-    else:
-        # Get all students enrolled in any of teacher's classes
-        students = UserProfile.objects.filter(
-            id__in=all_student_ids,
-            role='student'
-        ).select_related('user')
-
-    # Apply search filter if present
+            students_list = Student.objects.none()
+    
+    # Apply search
     if search_query:
-        students = students.filter(
-            Q(user__first_name__icontains=search_query) |
-            Q(user__last_name__icontains=search_query) |
-            Q(user__email__icontains=search_query) |
-            Q(user__username__icontains=search_query)
+        students_list = students_list.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(student_id__icontains=search_query)
         )
 
-    # Set up pagination
-    paginator = Paginator(students, 10)  # Show 10 students per page
-    page = request.GET.get('page')
-    try:
-        students = paginator.page(page)
-    except PageNotAnInteger:
-        students = paginator.page(1)
-    except EmptyPage:
-        students = paginator.page(paginator.num_pages)
+    # Pagination
+    paginator = Paginator(students_list, 10)  # Show 10 students per page
+    page_number = request.GET.get('page', 1)
+    students = paginator.get_page(page_number)
 
     context = {
         'students': students,
-        'total_students': total_students_count,  # This is the total number of students before filtering
-        'filtered_count': paginator.count,  # This is the number after filtering
         'classes': teacher_classes,
-        'selected_class': int(selected_class) if selected_class else None,
-        'search_query': search_query,
-        'page_title': 'Students'
+        'selected_class': selected_class,
+        'total_students': students_list.count(),
+        'page_title': 'Student List'
     }
-
-    # If this is an AJAX request, return only the table content
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'teachers/students_table.html', context)
     
-    return render(request, 'teachers/students.html', context)
+    return render(request, 'teachers/student_list.html', context)
 
 @login_required
 def add_student(request):
@@ -495,14 +483,12 @@ def add_student(request):
     if request.method == 'POST':
         try:
             # Get form data
-            username = request.POST.get('username')
-            email = request.POST.get('email')
-            password = str(uuid.uuid4())  # Generate a random password
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
             gender = request.POST.get('gender')
             contact_number = request.POST.get('contact_number')
-            id_number = request.POST.get('id_number')
+            student_id = request.POST.get('id_number')
             class_id = request.POST.get('classes')
 
             # Validate class selection
@@ -525,81 +511,75 @@ def add_student(request):
                     'page_title': 'Add Student'
                 })
 
-            # Get all students in teacher's classes
-            teacher_classes = Class.objects.filter(teacher=request.user.userprofile)
-            enrolled_students = ClassEnrollment.objects.filter(
-                class_instance__in=teacher_classes
-            ).values_list('student', flat=True)
-
-            # Check if username exists in teacher's students
-            username_exists = UserProfile.objects.filter(
-                id__in=enrolled_students,
-                user__username=username
-            ).exists()
-
-            if username_exists:
-                messages.error(request, 'A student with this username already exists in your classes.')
+            # Check if student ID already exists
+            if Student.objects.filter(student_id=student_id).exists():
+                messages.warning(request, f'Student ID "{student_id}" is already in use.')
                 return render(request, 'teachers/add_student.html', {
                     'classes': Class.objects.filter(teacher=request.user.userprofile),
                     'form_data': request.POST,
                     'page_title': 'Add Student'
                 })
 
-            # Check if email exists in teacher's students
-            email_exists = UserProfile.objects.filter(
-                id__in=enrolled_students,
-                user__email=email
-            ).exists()
-
-            if email_exists:
-                messages.error(request, 'A student with this email already exists in your classes.')
+            # Check if email already exists
+            if Student.objects.filter(email=email).exists():
+                messages.warning(request, f'Email address "{email}" is already registered.')
                 return render(request, 'teachers/add_student.html', {
                     'classes': Class.objects.filter(teacher=request.user.userprofile),
                     'form_data': request.POST,
                     'page_title': 'Add Student'
                 })
 
-            # Check if ID number exists
-            id_number_exists = UserProfile.objects.filter(id_number=id_number).exists()
-            if id_number_exists:
-                messages.error(request, 'A student with this ID number already exists.')
-                return render(request, 'teachers/add_student.html', {
-                    'classes': Class.objects.filter(teacher=request.user.userprofile),
-                    'form_data': request.POST,
-                    'page_title': 'Add Student'
-                })
+            # Use transaction to ensure both student and enrollment are created
+            with transaction.atomic():
+                # Create student record
+                student = Student.objects.create(
+                    student_id=student_id,
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    contact_number=contact_number,
+                    gender=gender,
+                    class_instance=class_obj  # Direct class assignment
+                )
 
-            # Create user account
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name
-            )
+                # Create enrollment record
+                ClassEnrollment.objects.create(
+                    student=student,
+                    class_instance=class_obj
+                )
 
-            # Create student profile
-            student = UserProfile.objects.create(
-                user=user,
-                role='student',
-                gender=gender,
-                contact_number=contact_number,
-                id_number=id_number
-            )
+            messages.success(request, f'Student "{first_name} {last_name}" has been added successfully!')
+            # Clear form data after successful addition
+            return render(request, 'teachers/add_student.html', {
+                'classes': Class.objects.filter(teacher=request.user.userprofile),
+                'page_title': 'Add Student'
+            })
 
-            # Create class enrollment
-            ClassEnrollment.objects.create(
-                student=student,
-                class_instance=class_obj
-            )
-
-            messages.success(request, 'Student added successfully!')
-            return redirect('teacher_dashboard')
+        except IntegrityError as e:
+            error_message = str(e).lower()
+            if 'unique constraint' in error_message:
+                if 'student_id' in error_message:
+                    messages.warning(request, 'This Student ID is already registered in the system.')
+                elif 'email' in error_message:
+                    messages.warning(request, 'This email address is already registered in the system.')
+                else:
+                    messages.warning(request, 'This student information already exists in the system.')
+            else:
+                messages.error(request, f'Error adding student: {str(e)}')
+            
+            return render(request, 'teachers/add_student.html', {
+                'classes': Class.objects.filter(teacher=request.user.userprofile),
+                'form_data': request.POST,
+                'page_title': 'Add Student'
+            })
 
         except Exception as e:
-            if 'user' in locals():
-                user.delete()
             messages.error(request, f'Error adding student: {str(e)}')
+            return render(request, 'teachers/add_student.html', {
+                'classes': Class.objects.filter(teacher=request.user.userprofile),
+                'form_data': request.POST,
+                'page_title': 'Add Student'
+            })
 
     # Get only this teacher's classes
     classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
@@ -708,9 +688,10 @@ def delete_student(request, student_id):
     student = get_object_or_404(UserProfile, id=student_id, id__in=enrolled_students)
 
     try:
+        student_name = student.user.get_full_name()
         # Delete user (this will cascade delete the profile and enrollments)
         student.user.delete()
-        messages.success(request, 'Student deleted successfully!')
+        messages.success(request, f'Student "{student_name}" has been deleted')
     except Exception as e:
         messages.error(request, f'Error deleting student: {str(e)}')
     
@@ -725,11 +706,19 @@ def teacher_class_detail(request, class_id):
 
     # Get class only if it belongs to the teacher
     class_obj = get_object_or_404(Class, id=class_id, teacher=request.user.userprofile)
-    enrolled_students = ClassEnrollment.objects.filter(class_instance=class_obj).select_related('student__user')
+    
+    # Get all enrolled students
+    all_students = Student.objects.filter(class_instance=class_obj).select_related('class_instance')
+    
+    # Pagination
+    paginator = Paginator(all_students, 10)  # Show 10 students per page
+    page_number = request.GET.get('page', 1)
+    enrolled_students = paginator.get_page(page_number)
 
     context = {
         'class': class_obj,
         'enrolled_students': enrolled_students,
+        'total_students': all_students.count(),
         'page_title': f'Class Detail - {class_obj}'
     }
 
@@ -737,7 +726,6 @@ def teacher_class_detail(request, class_id):
 
 @login_required
 def get_students(request, class_id):
-    """AJAX endpoint to get students in a class."""
     if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
         return JsonResponse({'error': 'Access denied'}, status=403)
     
@@ -778,7 +766,7 @@ def delete_attendance(request, record_id):
     except Exception as e:
         messages.error(request, f'Error deleting attendance record: {str(e)}')
 
-    return redirect('teacher_dashboard')
+    return redirect('manage_attendance')
 
 @login_required
 def edit_attendance(request, record_id):
@@ -797,13 +785,226 @@ def edit_attendance(request, record_id):
             attendance.time_in = request.POST.get('time_in')
             attendance.save()
             messages.success(request, 'Attendance record updated successfully!')
+            return redirect('manage_attendance')
         except Exception as e:
             messages.error(request, f'Error updating attendance: {str(e)}')
-        return redirect('teacher_dashboard')
 
     context = {
         'attendance': attendance,
         'page_title': 'Edit Attendance'
     }
     return render(request, 'teachers/edit_attendance.html', context)
+
+@login_required
+def attendance_report(request):
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
+        messages.error(request, 'Access denied. Teacher access only.')
+        return redirect('login')
+
+    # Get teacher's classes
+    classes = Class.objects.filter(teacher=request.user.userprofile).select_related('subject')
+    
+    # Get filter parameters
+    selected_class = request.GET.get('class')
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
+    
+    # Initialize attendance data
+    attendance_data = []
+    selected_class_name = None
+    
+    if selected_class or from_date or to_date:
+        # Base query for attendance records
+        attendance_query = Attendance.objects.select_related(
+            'student__user', 
+            'class_instance__subject'
+        )
+        
+        # Apply class filter
+        if selected_class:
+            attendance_query = attendance_query.filter(class_instance_id=selected_class)
+            try:
+                class_obj = Class.objects.get(id=selected_class)
+                selected_class_name = f"{class_obj.subject.name} - {class_obj.section}"
+            except Class.DoesNotExist:
+                messages.error(request, 'Selected class not found.')
+                return redirect('attendance_report')
+        else:
+            attendance_query = attendance_query.filter(class_instance__teacher=request.user.userprofile)
+        
+        # Apply date filters
+        if from_date:
+            attendance_query = attendance_query.filter(date__gte=from_date)
+        if to_date:
+            attendance_query = attendance_query.filter(date__lte=to_date)
+        
+        # Get unique students
+        students = attendance_query.values(
+            'student__user__first_name',
+            'student__user__last_name',
+            'student_id',
+            'class_instance__subject__name',
+            'class_instance__section'
+        ).distinct()
+        
+        # Calculate statistics for each student
+        for student in students:
+            student_records = attendance_query.filter(student_id=student['student_id'])
+            total_days = student_records.count()
+            present_days = student_records.filter(status='present').count()
+            absent_days = total_days - present_days
+            attendance_rate = round((present_days / total_days * 100), 2) if total_days > 0 else 0
+            
+            attendance_data.append({
+                'student_name': f"{student['student__user__first_name']} {student['student__user__last_name']}",
+                'class_name': f"{student['class_instance__subject__name']} - {student['class_instance__section']}",
+                'total_days': total_days,
+                'present_days': present_days,
+                'absent_days': absent_days,
+                'attendance_rate': attendance_rate
+            })
+    
+    context = {
+        'classes': classes,
+        'selected_class': selected_class,
+        'from_date': from_date,
+        'to_date': to_date,
+        'attendance_data': attendance_data,
+        'selected_class_name': selected_class_name,
+        'current_date': timezone.now().strftime('%Y-%m-%d'),
+        'page_title': 'Attendance Report'
+    }
+    
+    return render(request, 'teachers/reports/attendance_report.html', context)
+
+@login_required
+def fix_enrollments(request):
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
+        messages.error(request, 'Access denied. Teacher access only.')
+        return redirect('login')
+
+    try:
+        # Get all students with class_instance but no enrollment
+        students = Student.objects.filter(
+            class_instance__isnull=False,
+            enrollments__isnull=True
+        )
+
+        # Create enrollments for each student
+        enrollment_count = 0
+        for student in students:
+            ClassEnrollment.objects.create(
+                student=student,
+                class_instance=student.class_instance
+            )
+            enrollment_count += 1
+
+        if enrollment_count > 0:
+            messages.success(request, f'Successfully fixed enrollments for {enrollment_count} students.')
+        else:
+            messages.info(request, 'No students needed enrollment fixes.')
+
+    except Exception as e:
+        messages.error(request, f'Error fixing enrollments: {str(e)}')
+
+    return redirect('student_list')
+
+@login_required
+def fix_student_relationships(request):
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
+        messages.error(request, 'Access denied. Teacher access only.')
+        return redirect('login')
+
+    try:
+        with transaction.atomic():
+            # Get all students with class_instance but no enrollment
+            students_missing_enrollment = Student.objects.filter(
+                class_instance__isnull=False,
+                enrollments__isnull=True
+            )
+
+            # Create enrollments for students with class_instance but no enrollment
+            for student in students_missing_enrollment:
+                ClassEnrollment.objects.create(
+                    student=student,
+                    class_instance=student.class_instance
+                )
+
+            # Get all students with enrollments but no class_instance
+            students_missing_class = Student.objects.filter(
+                class_instance__isnull=True,
+                enrollments__isnull=False
+            )
+
+            # Set class_instance for students with enrollments but no class_instance
+            for student in students_missing_class:
+                # Get the first enrollment's class
+                first_enrollment = student.enrollments.first()
+                if first_enrollment:
+                    student.class_instance = first_enrollment.class_instance
+                    student.save()
+
+            total_fixed = students_missing_enrollment.count() + students_missing_class.count()
+            if total_fixed > 0:
+                messages.success(request, f'Successfully fixed {total_fixed} student relationships.')
+            else:
+                messages.info(request, 'No student relationships needed fixing.')
+
+    except Exception as e:
+        messages.error(request, f'Error fixing student relationships: {str(e)}')
+
+    return redirect('student_list')
+
+@login_required
+def save_attendance(request):
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'teacher':
+        messages.error(request, 'Access denied. Teacher access only.')
+        return redirect('login')
+
+    if request.method == 'POST':
+        class_id = request.POST.get('class_id')
+        try:
+            # Verify the class belongs to the teacher
+            class_obj = Class.objects.get(id=class_id, teacher=request.user.userprofile)
+            
+            # Get all students in the class
+            students = Student.objects.filter(class_instance=class_obj)
+            
+            # Get current date
+            current_date = timezone.now().date()
+            
+            # Process attendance for each student
+            for student in students:
+                status = request.POST.get(f'status_{student.id}')
+                if status:
+                    # Create or update attendance record
+                    Attendance.objects.update_or_create(
+                        student=student,
+                        class_instance=class_obj,
+                        date=current_date,
+                        defaults={
+                            'status': status,
+                            'time_in': timezone.now().time()
+                        }
+                    )
+            
+            # Get updated attendance stats
+            today_attendance = Attendance.objects.filter(
+                class_instance__in=Class.objects.filter(teacher=request.user.userprofile),
+                date=current_date
+            )
+            
+            present_count = today_attendance.filter(status='present').values('student').distinct().count()
+            late_count = today_attendance.filter(status='late').values('student').distinct().count()
+            absent_count = today_attendance.filter(status='absent').values('student').distinct().count()
+            
+            messages.success(request, f'Attendance saved successfully! Present: {present_count}, Late: {late_count}, Absent: {absent_count}')
+            return redirect('take_attendance')
+            
+        except Class.DoesNotExist:
+            messages.error(request, 'Invalid class selected.')
+        except Exception as e:
+            messages.error(request, f'Error saving attendance: {str(e)}')
+    
+    return redirect('take_attendance')
 

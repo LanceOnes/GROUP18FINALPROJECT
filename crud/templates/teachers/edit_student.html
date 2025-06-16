@@ -86,7 +86,7 @@
                             <option value="">Select Class</option>
                         {% for class in classes %}
                             <option value="{{ class.id }}" {% if enrolled_class.id == class.id %}selected{% endif %}>
-                                {{ class.subject.name }} - {{ class.section }} ({{ class.schedule }})
+                                {{ class.subject.name }} - {{ class.section }} ({{ class.room }})
                             </option>
                         {% endfor %}
                     </select>

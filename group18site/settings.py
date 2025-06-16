@@ -124,7 +124,7 @@ STATIC_URL = 'static/'
 
 # Authentication settings
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
+LOGIN_REDIRECT_URL = 'teacher_dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
 # Default primary key field type
