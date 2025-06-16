@@ -594,10 +594,11 @@ def edit_student(request, student_id):
         messages.error(request, 'Access denied. Teacher access only.')
         return redirect('login')
 
-    # Get student only if enrolled in teacher's classes
+    # Get teacher's classes
     teacher_classes = Class.objects.filter(teacher=request.user.userprofile)
-    enrolled_students = ClassEnrollment.objects.filter(class_instance__in=teacher_classes).values_list('student', flat=True)
-    student = get_object_or_404(UserProfile, id=student_id, id__in=enrolled_students)
+    
+    # Get student only if enrolled in teacher's classes
+    student = get_object_or_404(Student, id=student_id, class_instance__teacher=request.user.userprofile)
     
     if request.method == 'POST':
         try:
@@ -608,29 +609,28 @@ def edit_student(request, student_id):
             gender = request.POST.get('gender')
             contact_number = request.POST.get('contact_number')
             id_number = request.POST.get('id_number')
-            class_id = request.POST.get('class')
+            class_id = request.POST.get('classes')
 
             # Verify the class belongs to the teacher
             class_obj = get_object_or_404(Class, id=class_id, teacher=request.user.userprofile)
 
-            # Check if email exists in any of teacher's students (excluding current student)
-            email_exists = UserProfile.objects.filter(
-                id__in=enrolled_students,  # Only check among teacher's students
-                user__email=email
+            # Check if email exists (excluding current student)
+            email_exists = Student.objects.filter(
+                email=email
             ).exclude(id=student.id).exists()
 
             if email_exists:
-                messages.error(request, 'A student with this email already exists in your classes.')
+                messages.error(request, 'A student with this email already exists.')
                 return render(request, 'teachers/edit_student.html', {
                     'student': student,
                     'classes': teacher_classes,
-                    'current_class': student.enrolled_classes.filter(class_instance__teacher=request.user.userprofile).first(),
+                    'enrolled_class': student.class_instance,
                     'page_title': 'Edit Student'
                 })
 
             # Check if ID number exists (excluding current student)
-            id_number_exists = UserProfile.objects.filter(
-                id_number=id_number
+            id_number_exists = Student.objects.filter(
+                student_id=id_number
             ).exclude(id=student.id).exists()
 
             if id_number_exists:
@@ -638,32 +638,28 @@ def edit_student(request, student_id):
                 return render(request, 'teachers/edit_student.html', {
                     'student': student,
                     'classes': teacher_classes,
-                    'current_class': student.enrolled_classes.filter(class_instance__teacher=request.user.userprofile).first(),
+                    'enrolled_class': student.class_instance,
                     'page_title': 'Edit Student'
                 })
 
-            # Update user info
-            student.user.first_name = first_name
-            student.user.last_name = last_name
-            student.user.email = email
-            student.user.save()
-
-            # Update profile info
+            # Update student info
+            student.first_name = first_name
+            student.last_name = last_name
+            student.email = email
             student.gender = gender
             student.contact_number = contact_number
-            student.id_number = id_number
+            student.student_id = id_number
+            student.class_instance = class_obj
             student.save()
 
-            # Update class enrollment
-            enrollment = ClassEnrollment.objects.filter(student=student, class_instance__teacher=request.user.userprofile).first()
-            if enrollment:
-                enrollment.class_instance = class_obj
-                enrollment.save()
-            else:
-                ClassEnrollment.objects.create(student=student, class_instance=class_obj)
+            # Update or create enrollment
+            ClassEnrollment.objects.update_or_create(
+                student=student,
+                defaults={'class_instance': class_obj}
+            )
 
             messages.success(request, 'Student updated successfully!')
-            return redirect('teacher_dashboard')
+            return redirect('student_list')
 
         except Exception as e:
             messages.error(request, f'Error updating student: {str(e)}')
@@ -671,7 +667,7 @@ def edit_student(request, student_id):
     context = {
         'student': student,
         'classes': teacher_classes,
-        'current_class': student.enrolled_classes.filter(class_instance__teacher=request.user.userprofile).first(),
+        'enrolled_class': student.class_instance,
         'page_title': 'Edit Student'
     }
     return render(request, 'teachers/edit_student.html', context)

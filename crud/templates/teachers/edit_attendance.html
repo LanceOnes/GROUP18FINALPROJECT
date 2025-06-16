@@ -1,41 +1,62 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<div class="space-y-6">
-   
-    <div class="glass-container p-6">
-        <h1 class="text-3xl font-bold text-white/90">Edit Attendance</h1>
-        <p class="text-white/70">Edit attendance record for {{ attendance.student.get_full_name }}</p>
+{% include 'include/sidebar.html' %}
+
+<div class="pt-20 sm:ml-10">
+    <div class="max-w-4xl mx-auto px-4">
+        <!-- Header -->
+        <div class="glass-container p-5 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-white">Edit Attendance</h1>
+                    <p class="text-sm md:text-base text-white/70">Update attendance record for {{ attendance.student.get_full_name }}</p>
+                </div>
+                <a href="{% url 'take_attendance' %}" class="glass-button px-4 py-2 rounded-xl font-medium hover:bg-white/20 flex items-center gap-2 text-white">
+                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back
+                </a>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="glass-container p-5">
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Attendance Information -->
+                <div class="space-y-5">
+                    <h2 class="text-lg font-semibold text-white">Attendance Information</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-1.5" for="status">Status</label>
+                            <select class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors [&>option]:bg-[#2a2a3a]" 
+                                    id="status" name="status" required>
+                                <option value="present" {% if attendance.status == 'present' %}selected{% endif %}>Present</option>
+                                <option value="late" {% if attendance.status == 'late' %}selected{% endif %}>Late</option>
+                                <option value="absent" {% if attendance.status == 'absent' %}selected{% endif %}>Absent</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-1.5" for="time_in">Time In</label>
+                            <input type="time" id="time_in" name="time_in" value="{{ attendance.time_in|time:'H:i' }}"
+                                class="glass-input w-full p-2.5 rounded-xl bg-[#2a2a3a] text-white border border-white/10 focus:border-white/30 transition-colors" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-center gap-4 pt-4">
+                    <a href="{% url 'take_attendance' %}" class="glass-button px-5 py-2 rounded-xl font-medium hover:bg-white/20 text-white">Cancel</a>
+                    <button type="submit" class="glass-button px-5 py-2 rounded-xl font-medium bg-white/10 hover:bg-white/20 text-white flex items-center gap-2">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-
-  
-    <form method="POST" class="glass-container p-6 space-y-6">
-        {% csrf_token %}
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-            <div>
-                <label for="status" class="block text-sm font-medium text-white/90 mb-2">Status</label>
-                <select id="status" name="status" class="glass-select w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white/90 [&>option]:bg-[#2a2a3a]" required>
-                    <option value="present" {% if attendance.status == 'present' %}selected{% endif %} class="bg-[#2a2a3a]">Present</option>
-                    <option value="late" {% if attendance.status == 'late' %}selected{% endif %} class="bg-[#2a2a3a]">Late</option>
-                    <option value="absent" {% if attendance.status == 'absent' %}selected{% endif %} class="bg-[#2a2a3a]">Absent</option>
-                </select>
-            </div>
-
-        
-            <div>
-                <label for="time_in" class="block text-sm font-medium text-white/90 mb-2">Time</label>
-                <input type="time" id="time_in" name="time_in" value="{{ attendance.time_in|time:'H:i' }}"
-                    class="glass-input w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white/90" required>
-            </div>
-        </div>
-
-        <div class="flex justify-end">
-            <button type="submit" class="glass-button px-4 py-2 md:px-6 md:py-2.5 rounded-lg font-medium hover:bg-white/20 text-white">
-                Save Changes
-            </button>
-        </div>
-    </form>
 </div>
 {% endblock %} 
