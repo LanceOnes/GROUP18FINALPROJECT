@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.auth.hashers import make_password
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -43,7 +44,7 @@ class Class(models.Model):
         return f"{self.subject.name} - {self.section}"
 
 class Student(models.Model):
-    student_id = models.CharField(max_length=20, unique=True)
+    student_id = models.CharField(max_length=20)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -54,6 +55,11 @@ class Student(models.Model):
         ('Other', 'Other')
     ])
     class_instance = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='students', null=True, blank=True)
+    teacher = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='teacher_students')
+
+    class Meta:
+        # Make student_id unique only within a teacher's scope
+        unique_together = ['student_id', 'teacher']
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.student_id})"
@@ -82,9 +88,7 @@ class Attendance(models.Model):
     class_instance = models.ForeignKey(Class, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
     time_in = models.TimeField(default=timezone.now)
-    time_out = models.TimeField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='present')
-    notes = models.TextField(blank=True)
     
     class Meta:
         unique_together = ['student', 'class_instance', 'date']
@@ -101,6 +105,12 @@ class Teacher(models.Model):
     password = models.CharField(max_length=128)  # Will be hashed
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Hash the password if it's not already hashed
+        if not self.password.startswith('pbkdf2_sha256$'):
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

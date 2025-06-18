@@ -4,7 +4,7 @@
 {% block content %}
 {% include 'include/sidebar.html' %}
 
-<div class="pt-16 sm:ml-60 px-6">
+<div class="pt-10 sm:ml-50 px-10">
     <!-- Header Section -->
     <div class="glass-container p-4 mb-4">
         <div class="flex items-center justify-between">
@@ -38,13 +38,13 @@
             </div>
             <div>
                 <h2 class="text-base font-semibold text-white">Filter Students</h2>
-                <p class="text-xs text-white/60">Filter students by class</p>
+                <p class="text-xs text-white/60">Filter and search students</p>
             </div>
         </div>
         
         <form method="get" class="flex flex-col md:flex-row gap-4">
             <div class="flex-1">
-                <select name="class" id="class" class="glass-input w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white text-base border border-white/10 focus:border-white/30 transition-colors [&>option]:bg-[#2a2a3a]" onchange="this.form.submit()">
+                <select name="class" id="class" class="glass-input w-full p-2.5 rounded-lg bg-[#2a2a3a] text-white text-base border border-white/10 focus:border-white/30 transition-colors [&>option]:bg-[#2a2a3a]">
                     <option value="">All Classes</option>
                     {% for class in classes %}
                     <option value="{{ class.id }}" {% if selected_class == class.id|stringformat:"s" %}selected{% endif %}>
@@ -53,6 +53,23 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="flex-1">
+                <div class="relative">
+                    <input type="text" 
+                           name="search" 
+                           placeholder="Search by name or ID..." 
+                           value="{{ search_query }}"
+                           class="glass-input w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#2a2a3a] text-white text-base border border-white/10 focus:border-white/30 transition-colors">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="glass-button px-6 py-2.5 rounded-lg font-medium hover:bg-white/20 text-white transition-all duration-300 md:w-auto w-full">
+                Apply Filters
+            </button>
         </form>
     </div>
 
@@ -134,11 +151,11 @@
                         <p class="text-sm text-white/70">Page {{ students.number }} of {{ students.paginator.num_pages }}</p>
                         <div class="flex gap-2">
                             {% if students.has_previous %}
-                            <a href="?page={{ students.previous_page_number }}{% if selected_class %}&class={{ selected_class }}{% endif %}" 
+                            <a href="?page={{ students.previous_page_number }}{% if selected_class %}&class={{ selected_class }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" 
                                class="glass-button px-3 py-1.5 rounded-lg text-sm hover:bg-white/20">Previous</a>
                             {% endif %}
                             {% if students.has_next %}
-                            <a href="?page={{ students.next_page_number }}{% if selected_class %}&class={{ selected_class }}{% endif %}" 
+                            <a href="?page={{ students.next_page_number }}{% if selected_class %}&class={{ selected_class }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" 
                                class="glass-button px-3 py-1.5 rounded-lg text-sm hover:bg-white/20">Next</a>
                             {% endif %}
                         </div>

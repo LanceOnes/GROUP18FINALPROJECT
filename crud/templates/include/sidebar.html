@@ -12,7 +12,7 @@
       </div>
 
       <!-- Main Navigation -->
-      <ul class="space-y-6 flex-1">
+      <ul class="space-y-6 flex-grow">
          {% if user.is_authenticated %}
             <!-- Navigation Items -->
             <li>
@@ -57,15 +57,6 @@
                   <span class="flex-1 ml-3 whitespace-nowrap">Students</span>
                </a>
             </li>
-            <!-- Logout Button -->
-            <li class="mt-auto">
-               <button onclick="openLogoutModal()" class="w-full flex items-center p-2 text-white/90 rounded-lg hover:bg-red-500/20 group">
-                  <svg class="flex-shrink-0 w-6 h-6 text-white/70 transition duration-75 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 16 16">
-                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h11m0 0-4-4m4 4-4 4m-5 3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h3"/>
-                  </svg>
-                  <span class="flex-1 ml-3 whitespace-nowrap">Logout</span>
-               </button>
-            </li>
          {% else %}
             <li>
                <a href="{% url 'login' %}" class="flex items-center p-2 text-white/90 rounded-lg hover:bg-white/10 group">
@@ -85,6 +76,18 @@
             </li>
          {% endif %}
       </ul>
+
+      {% if user.is_authenticated %}
+      <!-- Logout Button -->
+      <div class="mt-6 pt-6 border-t border-white/10">
+         <button onclick="openLogoutModal()" class="w-full flex items-center p-2 text-white/90 rounded-lg hover:bg-red-500/20 group transition-all duration-300">
+            <svg class="flex-shrink-0 w-6 h-6 text-white/70 transition duration-75 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h11m0 0-4-4m4 4-4 4m-5 3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h3"/>
+            </svg>
+            <span class="flex-1 ml-3 whitespace-nowrap">Logout</span>
+         </button>
+      </div>
+      {% endif %}
    </div>
 </aside>
 
