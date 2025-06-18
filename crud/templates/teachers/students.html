@@ -273,5 +273,28 @@
             }, 5000 + (index * 500));
         });
     });
+
+    // Delete confirmation functions
+    function confirmDelete(deleteUrl) {
+        const modal = document.getElementById('deleteModal');
+        const deleteButton = document.getElementById('deleteButton');
+        
+        modal.classList.remove('hidden');
+        deleteButton.onclick = function() {
+            window.location.href = deleteUrl;
+        }
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
 </script>
 {% endblock %} 
