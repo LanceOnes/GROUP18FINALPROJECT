@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - ScholarTrack</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%);
@@ -155,6 +153,13 @@
             min-width: 300px;
             justify-content: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            opacity: 0;
+            transform: translate(-50%, -20px);
+            transition: all 0.3s ease;
+        }
+        .signup-message.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
         }
     </style>
 </head>
@@ -163,19 +168,7 @@
     {% if messages %}
         {% for message in messages %}
             {% if message.tags == 'success' %}
-            <div class="signup-message"
-                 x-data="{ show: false }" 
-                 x-init="() => { 
-                     $nextTick(() => { show = true }); 
-                     setTimeout(() => { show = false }, 5000);
-                 }" 
-                 x-show="show"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 transform -translate-y-4"
-                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                 x-transition:leave="transition ease-in duration-300"
-                 x-transition:leave-start="opacity-100 transform translate-y-0"
-                 x-transition:leave-end="opacity-0 transform -translate-y-4">
+            <div class="signup-message" id="signup-message">
                 <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -292,5 +285,23 @@
             </div>
         </form>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const message = document.getElementById('signup-message');
+        if (message) {
+            setTimeout(() => {
+                message.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                message.classList.remove('show');
+                setTimeout(() => {
+                    message.remove();
+                }, 300);
+            }, 5000);
+        }
+    });
+    </script>
 </body>
 </html>

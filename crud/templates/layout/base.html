@@ -1,28 +1,11 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en"
-      x-data="{
-          sidebarOpen: localStorage.getItem('sidebarOpen') === 'true',
-          isMobile: window.innerWidth < 768,
-          init() {
-              if (localStorage.getItem('sidebarOpen') === null) {
-                  localStorage.setItem('sidebarOpen', 'true');
-                  this.sidebarOpen = true;
-              }
-              window.addEventListener('resize', () => {
-                  this.isMobile = window.innerWidth < 768;
-              });
-          }
-      }"
-      @resize.window="isMobile = window.innerWidth < 768">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="ScholarTrack - Student Attendance Management System">
     <title>{% block title %}ScholarTrack{% endblock %}</title>
-    
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -50,12 +33,6 @@
             background: rgba(23, 25, 35, 0.8);
             backdrop-filter: blur(10px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease-in-out;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 40;
         }
 
         .glass-input {
@@ -219,10 +196,6 @@
                 transform: translateX(0);
             }
 
-            .glass-sidebar.collapsed {
-                width: 5rem;
-            }
-
             .content-wrapper {
                 margin-left: 16rem;
                 transition: margin-left 0.3s ease-in-out;
@@ -296,14 +269,12 @@
 
     {% block extra_css %}{% endblock %}
 </head>
-<body class="">
+<body>
     {% include 'include/toast.html' %}
     {% include 'include/sidebar.html' %}
-    <div class="content-wrapper transition-all duration-300 ml-10" :class="{'ml-16': sidebarOpen, 'ml-10': !sidebarOpen}">
+    
+    <div class="content-wrapper ml-64 p-4" id="mainContent">
         {% block content %}{% endblock %}
     </div>
-    
-    <!-- Custom JavaScript -->
-    {% block extra_js %}{% endblock %}
 </body>
 </html>

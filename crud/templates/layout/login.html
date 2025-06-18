@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - ScholarTrack</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%);
@@ -111,6 +109,13 @@
             min-width: 300px;
             justify-content: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            animation: fadeInOut 5s forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            5% { opacity: 1; transform: translate(-50%, 0); }
+            95% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
         }
     </style>
 </head>
@@ -118,11 +123,7 @@
     {% if messages %}
     <div class="fixed top-0 right-0 p-4 z-50">
         {% for message in messages %}
-        <div x-data="{ show: true }" 
-             x-show="show" 
-             x-init="setTimeout(() => show = false, 5000)"
-             class="toast-message animate-fade-in-down mb-3"
-             role="alert">
+        <div class="toast-message mb-3" role="alert">
             <div class="flex items-center">
                 {% if message.tags == 'success' %}
                 <svg class="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

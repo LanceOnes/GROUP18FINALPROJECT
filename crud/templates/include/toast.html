@@ -2,7 +2,7 @@
 <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center gap-2 w-full max-w-lg">
     {% for message in messages %}
     <div id="toast-{{ forloop.counter }}" 
-         class="transform transition-all duration-300 ease-in-out translate-y-0 opacity-100 
+         class="transform transition-all duration-300 ease-in-out translate-y-0 opacity-0 
                 bg-[#1e1e2e] backdrop-blur-md border border-white/10 rounded-xl shadow-lg w-auto min-w-[300px]">
         <div class="flex items-center gap-2 px-6 py-3">
             {% if message.tags == 'success' %}
@@ -20,22 +20,38 @@
     {% endfor %}
 </div>
 
+<style>
+@keyframes toastIn {
+    0% { transform: translate(-50%, -100%); opacity: 0; }
+    100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@keyframes toastOut {
+    0% { transform: translate(-50%, 0); opacity: 1; }
+    100% { transform: translate(-50%, -100%); opacity: 0; }
+}
+
+.toast-show {
+    animation: toastIn 0.3s ease forwards;
+}
+
+.toast-hide {
+    animation: toastOut 0.3s ease forwards;
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const toasts = document.querySelectorAll('[id^="toast-"]');
     toasts.forEach((toast, index) => {
-        // Slide in from top
-        toast.style.transform = 'translateY(-100%)';
-        toast.style.opacity = '0';
-        requestAnimationFrame(() => {
-            toast.style.transform = 'translateY(0)';
-            toast.style.opacity = '1';
-        });
-        
-        // Auto-hide after 4 seconds
+        // Show toast with animation
         setTimeout(() => {
-            toast.style.transform = 'translateY(-100%)';
-            toast.style.opacity = '0';
+            toast.classList.add('toast-show');
+        }, index * 500);
+        
+        // Hide and remove toast after delay
+        setTimeout(() => {
+            toast.classList.add('toast-hide');
             setTimeout(() => {
                 toast.remove();
             }, 300);

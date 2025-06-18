@@ -11,19 +11,7 @@
     {% if messages %}
         {% for message in messages %}
             {% if message.tags == 'success' or message.tags == 'error' %}
-            <div class="glass-container p-6 mb-6 flex items-center gap-4" 
-                 x-data="{ show: false }" 
-                 x-init="() => { 
-                     $nextTick(() => { show = true }); 
-                     setTimeout(() => { show = false }, 5000);
-                 }" 
-                 x-show="show"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 transform -translate-y-4"
-                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                 x-transition:leave="transition ease-in duration-300"
-                 x-transition:leave-start="opacity-100 transform translate-y-0"
-                 x-transition:leave-end="opacity-0 transform -translate-y-4">
+            <div class="glass-container p-6 mb-6 flex items-center gap-4 opacity-0 transform -translate-y-4" id="message-{{ forloop.counter }}">
                 <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
                     {% if message.tags == 'success' %}
                     <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,6 +156,26 @@
 {% endblock %}
 
 {% block extra_js %}
+<style>
+@keyframes messageIn {
+    0% { transform: translateY(-1rem); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes messageOut {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-1rem); opacity: 0; }
+}
+
+.message-show {
+    animation: messageIn 0.3s ease forwards;
+}
+
+.message-hide {
+    animation: messageOut 0.3s ease forwards;
+}
+</style>
+
 <script>
     // Handle class filter change
     document.getElementById('class-filter').addEventListener('change', function() {
@@ -249,50 +257,21 @@
         location.reload();
     });
 
-    // Handle pagination clicks
-    document.addEventListener('click', function(e) {
-        const target = e.target;
-        if (target.matches('#students-content a') && target.href && !target.classList.contains('glass-button')) {
-            e.preventDefault();
-            
-            // Show spinner
-            spinner.classList.remove('hidden');
+    // Show messages with animation
+    document.addEventListener('DOMContentLoaded', function() {
+        const messages = document.querySelectorAll('[id^="message-"]');
+        messages.forEach((message, index) => {
+            setTimeout(() => {
+                message.classList.add('message-show');
+            }, index * 500);
 
-            // Make AJAX request
-            fetch(target.href, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                contentContainer.innerHTML = html;
-                window.history.pushState({}, '', target.href);
-            })
-            .catch(error => console.error('Pagination error:', error))
-            .finally(() => spinner.classList.add('hidden'));
-        }
-    });
-
-    function confirmDelete(deleteUrl) {
-        const modal = document.getElementById('deleteModal');
-        const deleteButton = document.getElementById('deleteButton');
-        modal.classList.remove('hidden');
-        deleteButton.onclick = function() {
-            window.location.href = deleteUrl;
-        }
-    }
-
-    function closeModal() {
-        const modal = document.getElementById('deleteModal');
-        modal.classList.add('hidden');
-    }
-
-    // Close modal when clicking outside
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeModal();
-        }
+            setTimeout(() => {
+                message.classList.add('message-hide');
+                setTimeout(() => {
+                    message.remove();
+                }, 300);
+            }, 5000 + (index * 500));
+        });
     });
 </script>
 {% endblock %} 
